@@ -1,0 +1,13 @@
+{
+  "products": {
+    "1": {
+      "id": 1,
+      "name": "B3TR BEACH T-Shirt",
+      "priceUSD": 25,
+      "priceB3TR": 250,
+      "description": "Eco-friendly cotton T-shirt with B3TR logo.",
+      "soldOut": false
+    }
+  },
+  "purchases": {}
+}

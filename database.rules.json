@@ -1,0 +1,21 @@
+{
+  "rules": {
+    // Products are publicly readable by anyone.
+    "products": {
+      ".read": true,
+      // Only authenticated users (admins) can write/edit/delete products.
+      ".write": "auth != null",
+      "$productId": {
+        ".validate": "newData.hasChildren(['id', 'name', 'priceUSD', 'priceB3TR', 'description'])"
+      }
+    },
+    // Purchases can only be read and written by authenticated users (admins).
+    "purchases": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$purchaseId": {
+         ".validate": "newData.hasChildren(['item', 'amount', 'account', 'txId', 'timestamp', 'userName', 'userEmail', 'userAddress'])"
+      }
+    }
+  }
+}

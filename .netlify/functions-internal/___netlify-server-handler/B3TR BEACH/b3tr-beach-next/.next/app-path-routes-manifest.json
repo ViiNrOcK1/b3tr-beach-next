@@ -1,0 +1,14 @@
+{
+  "/ThankYouPage/page": "/ThankYouPage",
+  "/_not-found/page": "/_not-found",
+  "/events/page": "/events",
+  "/favicon.ico/route": "/favicon.ico",
+  "/forms/page": "/forms",
+  "/homepage/page": "/homepage",
+  "/instructions/page": "/instructions",
+  "/page": "/",
+  "/registrations/page": "/registrations",
+  "/store/page": "/store",
+  "/thankyou/page": "/thankyou",
+  "/transactions/page": "/transactions"
+}
