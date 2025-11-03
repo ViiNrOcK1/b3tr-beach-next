@@ -13,10 +13,20 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
+# Next.js
+.next/
+out/
+.netlify/
 
+# Node modules
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# Build logs
+npm-debug.log*
 # production
 /build
 
