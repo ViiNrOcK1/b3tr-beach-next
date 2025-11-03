@@ -55,37 +55,47 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
 function Header() {
   const [showError, setShowError] = useState(false);
 
+  // Pre-load check (optional – you can keep it)
   useEffect(() => {
-    const video = document.createElement('video');
-    video.src = '/assets/NewB3TRBEACHBannerGif.mp4';
-    video.onloadeddata = () => {
-      console.log('Banner MP4 loaded successfully');
-      setShowError(false);
-    };
-    video.onerror = () => {
-      console.error('Failed to load banner MP4');
-      setShowError(true);
-    };
+    const vid = document.createElement('video');
+    vid.src = '/assets/NewB3TRBEACHBannerGif.mp4';
+    vid.onloadeddata = () => setShowError(false);
+    vid.onerror = () => setShowError(true);
   }, []);
 
   return (
-<header className="relative bg-black overflow-hidden" style={{ height: '500px' }}>
-  <video
-    autoPlay
-    loop
-    muted
-    playsInline
-    style={{
-      width: '1700px',
-      height: '500px',
-      objectFit: 'cover',
-      objectPosition: 'center',
-    }}
-    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-  >
-    <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
-  </video>
-</header>
+    <header className="relative bg-black overflow-hidden">
+      {/* Fixed-size container */}
+      <div
+        className="w-full flex justify-center items-center"
+        style={{ height: '500px' }}   // exact height you want
+      >
+        {/* Video – forced 1700×500 */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="block"
+          style={{
+            width: '1700px',
+            height: '500px',
+            objectFit: 'cover',
+            objectPosition: 'center',
+          }}
+        >
+          <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      {/* Error overlay */}
+      {showError && (
+        <div className="absolute top-4 left-4 z-10 bg-red-600 text-white p-3 rounded">
+          Banner video not loaded – check /assets/NewB3TRBEACHBannerGif.mp4
+        </div>
+      )}
+    </header>
   );
 }
 function Hero() {
