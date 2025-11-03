@@ -73,10 +73,10 @@ function Header() {
           playsInline
           className="block max-w-full h-auto"
           style={{
-            width: '100%',
+            width: '90%',
             maxWidth: '1700px',
-	    height: '95%',
-            maxHeight: '700px',
+	    height: '100%',
+            maxHeight: '600px',
             objectFit: 'cover',
             objectPosition: 'center',
           }}
