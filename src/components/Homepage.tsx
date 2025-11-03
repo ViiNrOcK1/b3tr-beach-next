@@ -55,7 +55,6 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
 function Header() {
   const [showError, setShowError] = useState(false);
 
-  // Pre-load check (optional – you can keep it)
   useEffect(() => {
     const vid = document.createElement('video');
     vid.src = '/assets/NewB3TRBEACHBannerGif.mp4';
@@ -65,20 +64,17 @@ function Header() {
 
   return (
     <header className="relative bg-black overflow-hidden">
-      {/* Fixed-size container */}
-      <div
-        className="w-full flex justify-center items-center"
-        style={{ height: '500px' }}   // exact height you want
-      >
-        {/* Video – forced 1700×500 */}
+      {/* Responsive container */}
+      <div className="w-full flex justify-center items-center" style={{ height: '500px' }}>
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="block"
+          className="block max-w-full h-auto"
           style={{
-            width: '1700px',
+            width: '100%',
+            maxWidth: '1700px',
             height: '500px',
             objectFit: 'cover',
             objectPosition: 'center',
@@ -89,15 +85,15 @@ function Header() {
         </video>
       </div>
 
-      {/* Error overlay */}
       {showError && (
         <div className="absolute top-4 left-4 z-10 bg-red-600 text-white p-3 rounded">
-          Banner video not loaded – check /assets/NewB3TRBEACHBannerGif.mp4
+          Banner not loaded
         </div>
       )}
     </header>
   );
 }
+
 function Hero() {
   return (
     <section
