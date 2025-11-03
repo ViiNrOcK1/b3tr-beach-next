@@ -76,6 +76,10 @@ function Header() {
         muted
         playsInline
         className="absolute top-0 left-0 w-full h-full object-cover"
+	style={{
+	   backgroundSize: '1700px 500px',
+	   objectFit: 'cover',
+	}}
       >
         <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
         Your browser does not support the video tag.
