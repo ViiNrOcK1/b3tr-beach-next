@@ -65,7 +65,7 @@ function Header() {
   return (
     <header className="relative bg-black overflow-hidden">
       {/* Responsive container */}
-      <div className="w-full flex justify-center items-center" style={{ height: '500px' }}>
+      <div className="w-full flex justify-center items-center" style={{ height: '400px' }}>
         <video
           autoPlay
           loop
@@ -75,7 +75,7 @@ function Header() {
           style={{
             width: '100%',
             maxWidth: '1700px',
-            height: '500px',
+            height: '400px',
             objectFit: 'cover',
             objectPosition: 'center',
           }}
