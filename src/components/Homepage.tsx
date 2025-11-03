@@ -69,30 +69,23 @@ function Header() {
   }, []);
 
   return (
-    <header className="relative bg-black py-60 overflow-hidden">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute top-0 left-0 w-1700 h-500 object-cover"
-        style={{
-          width: '1700px',
-	  height: '500px',
-	  objectFit: 'cover',
-	  objectPosition: 'center',
-        }}
-      >
-        <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-
-      {showError && (
-        <div className="absolute top-4 left-4 z-10 bg-red-600 text-white p-4 rounded">
-          Banner video not loaded. Check path: /assets/NewB3TRBEACHBannerGif.mp4
-        </div>
-      )}
-    </header>
+<header className="relative bg-black overflow-hidden" style={{ height: '500px' }}>
+  <video
+    autoPlay
+    loop
+    muted
+    playsInline
+    style={{
+      width: '1700px',
+      height: '500px',
+      objectFit: 'cover',
+      objectPosition: 'center',
+    }}
+    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+  >
+    <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
+  </video>
+</header>
   );
 }
 function Hero() {
