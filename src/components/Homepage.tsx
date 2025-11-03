@@ -75,7 +75,8 @@ function Header() {
           style={{
             width: '80%',
             maxWidth: '1700px',
-            height: '700px',
+	    height: '80%',
+            maxheight: '700px',
             objectFit: 'cover',
             objectPosition: 'center',
           }}
