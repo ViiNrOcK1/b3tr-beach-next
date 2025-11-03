@@ -75,7 +75,7 @@ function Header() {
         loop
         muted
         playsInline
-        className="absolute top-0 left-0 w-1700px h-500px object-cover"
+        className="absolute top-0 left-0 w-1700 h-500 object-cover"
         style={{
           width: '1700px',
 	  height: '500px',
