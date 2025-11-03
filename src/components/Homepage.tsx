@@ -77,8 +77,7 @@ function Header() {
         playsInline
         className="absolute top-0 left-0 w-full h-full object-cover"
         style={{
-          backgroundSize: '1700px 500px',
-          objectFit: 'cover',
+          backgroundSize: '1700px 400px',
         }}
       >
         <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
