@@ -1,5 +1,4 @@
 "use client"; // Required for useState, useEffect, and client-side effects like sessionStorage
-
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link'; // For client-side navigation
 
@@ -11,30 +10,42 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
   const [showError, setShowError] = useState(false);
 
   useEffect(() => {
-    const img = new Image();
-    img.src = '/assets/B3TRBEACHSplashGif.gif';
-    img.onload = () => {
-      console.log('Splash GIF loaded successfully');
+    const video = document.createElement('video');
+    video.src = '/assets/B3TRBEACHSplashGif.mp4';
+    video.onloadeddata = () => {
+      console.log('Splash MP4 loaded successfully');
       setShowError(false);
     };
-    img.onerror = () => {
-      console.error('Failed to load splash GIF at /assets/B3TRBEACHSplashGif.gif');
+    video.onerror = () => {
+      console.error('Failed to load splash MP4 at /assets/B3TRBEACHSplashGif.mp4');
       setShowError(true);
     };
+
     const timer = setTimeout(() => {
       onFadeOut();
     }, 5000); // 5-second display
+
     return () => clearTimeout(timer);
   }, [onFadeOut]);
 
   return (
     <div
       className="splash-screen fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-75 z-50"
-      style={{ backgroundImage: `url(/assets/B3TRBEACHSplashGif.gif)`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+      style={{ backgroundColor: '#000' }}
     >
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="w-full h-full object-cover"
+      >
+        <source src="/assets/B3TRBEACHSplashGif.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
       {showError && (
-        <div className="error-message visible text-white">
-          Splash screen image not loaded. Check file path: /assets/B3TRBEACHSplashGif.gif
+        <div className="error-message visible text-white bg-red-600 p-4 rounded absolute top-4 left-4">
+          Splash video not loaded. Check file path: /assets/B3TRBEACHSplashGif.mp4
         </div>
       )}
     </div>
@@ -45,25 +56,32 @@ function Header() {
   const [showError, setShowError] = useState(false);
 
   useEffect(() => {
-    const img = new Image();
-    img.src = '/assets/NewB3TRBEACHBannerGif.gif';
-    img.onload = () => {
-      console.log('Banner GIF loaded successfully');
+    const video = document.createElement('video');
+    video.src = '/assets/NewB3TRBEACHBannerGif.mp4';
+    video.onloadeddata = () => {
+      console.log('Banner MP4 loaded successfully');
       setShowError(false);
     };
-    img.onerror = () => {
-      console.error('Failed to load banner GIF at /assets/NewB3TRBEACHBannerGif.gif');
+    video.onerror = () => {
+      console.error('Failed to load banner MP4 at /assets/NewB3TRBEACHBannerGif.mp4');
       setShowError(true);
     };
   }, []);
 
   return (
-    <header
-      className="bg-cover bg-center bg-no-repeat py-60 header-bg"
-      style={{ backgroundImage: `url(/assets/NewB3TRBEACHBannerGif.gif)`, backgroundSize: '1700px 500px' }}
-    >
-      <div className={`error-message ${showError ? 'visible' : ''}`}>
-        Banner image not loaded. Check file path: /assets/NewB3TRBEACHBannerGif.gif
+    <header className="relative bg-black py-60 overflow-hidden">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover"
+      >
+        <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div className={`error-message ${showError ? 'visible' : ''} absolute top-4 left-4 z-10 bg-red-600 text-white p-4 rounded`}>
+        Banner video not loaded. Check file path: /assets/NewB3TRBEACHBannerGif.mp4
       </div>
     </header>
   );
@@ -71,7 +89,15 @@ function Header() {
 
 function Hero() {
   return (
-    <section className="bg-gray-100 py-16 hero wave-bottom wave-top" style={{ backgroundImage: `url('/assets/B3TRBEACHAlter.png')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+    <section
+      className="bg-gray-100 py-16 hero wave-bottom wave-top"
+      style={{
+        backgroundImage: `url('/assets/B3TRBEACHAlter.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       <div className="container mx-auto px-4 text-center">
         <div className="fade-content">
           <h2 className="text-6xl text-amber-400 font-bold mb-4 text-outline-black">
@@ -89,7 +115,10 @@ function Hero() {
             𝐓𝐡𝐚𝐧𝐤 𝐲𝐨𝐮 𝐟𝐨𝐫 𝐣𝐨𝐢𝐧𝐢𝐧𝐠 𝐮𝐬 🤟🏽.
           </p>
           <div className="flex justify-center mt-6">
-            <Link href="/instructions" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black">
+            <Link
+              href="/instructions"
+              className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
+            >
               Get Started
             </Link>
           </div>
@@ -101,7 +130,15 @@ function Hero() {
 
 function Features() {
   return (
-    <section className="bg-gray-100 py-16 features wave-bottom wave-top" style={{ backgroundImage: `url('/assets/SeaShell.png')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+    <section
+      className="bg-gray-100 py-16 features wave-bottom wave-top"
+      style={{
+        backgroundImage: `url('/assets/SeaShell.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       <div className="container mx-auto px-4 text-center">
         <div className="fade-content">
           <h2 className="text-6xl text-amber-400 font-bold mb-12 text-outline-black">
@@ -109,7 +146,10 @@ function Features() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-custom-blue p-4 rounded-lg shadow">
-              <Link href="/events" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black">
+              <Link
+                href="/events"
+                className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
+              >
                 Clean Up Events
               </Link>
               <p className="mt-2 text-white">
@@ -117,7 +157,10 @@ function Features() {
               </p>
             </div>
             <div className="bg-custom-blue p-4 rounded-lg shadow">
-              <Link href="/store" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black">
+              <Link
+                href="/store"
+                className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
+              >
                 B3TR Rewards
               </Link>
               <p className="mt-2 text-white">
@@ -125,14 +168,17 @@ function Features() {
               </p>
             </div>
             <div className="bg-custom-blue p-4 rounded-lg shadow">
-              <Link href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black">
+              <Link
+                href="#"
+                className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
+              >
                 Adopt-A-Beach/Park
               </Link>
               <p className="mt-2 text-white">
                 Want to make an even <span className="text-amber-400">𝐁𝟑𝐓𝐑</span> lasting impact? Become an Adopter! Own a piece of beach, river, lake, or park
-		and be apart of the soultion!</p>
-	      <p className="text-amber-400 text-3xl">COMING SOON...
+                and be apart of the soultion!
               </p>
+              <p className="text-amber-400 text-3xl">COMING SOON...</p>
             </div>
           </div>
         </div>
@@ -161,7 +207,12 @@ function Sponsors() {
     <section
       id="sponsors"
       className="py-16 wave-bottom wave-top relative"
-      style={{ backgroundImage: `url('/assets/B3TRBEACHAlter.png')`, backgroundSize: '1900px 500px', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
+      style={{
+        backgroundImage: `url('/assets/B3TRBEACHAlter.png')`,
+        backgroundSize: '1900px 500px',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
     >
       <div className="container mx-auto px-4">
         <div className="fade-content">
@@ -183,7 +234,7 @@ function Sponsors() {
           </div>
         </div>
         {showError && (
-          <div className="error-message visible text-white">
+          <div className="error-message visible text-white bg-red-600 p-4 rounded absolute top-4 left-4 z-10">
             Background image not loaded. Check file path: /assets/B3TRBEACHAlter.png
           </div>
         )}
@@ -194,7 +245,16 @@ function Sponsors() {
 
 function Download() {
   return (
-    <section id="download" className="py-16 wave-bottom wave-top" style={{ backgroundImage: `url('/assets/SeaShell.png')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+    <section
+      id="download"
+      className="py-16 wave-bottom wave-top"
+      style={{
+        backgroundImage: `url('/assets/SeaShell.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       <div className="container mx-auto px-4 text-center">
         <div className="fade-content">
           <h2 className="text-4xl text-amber-400 font-bold mb-4 text-outline-black">
@@ -218,12 +278,12 @@ function Download() {
             >
               Google Play
             </a>
-	   <a
+            <a
               href="https://b3trbeach.com/"
               className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
             >
-	      B3TR BEACH DApp
-	    </a>
+              B3TR BEACH DApp
+            </a>
           </div>
         </div>
       </div>
@@ -257,36 +317,34 @@ function Footer() {
 }
 
 export default function Homepage() {
-  const [showSplash, setShowSplash] = useState(false); // Start hidden
-  const [contentReady, setContentReady] = useState(false); // Control content visibility
+  const [showSplash, setShowSplash] = useState(false);
+  const [contentReady, setContentReady] = useState(false);
 
   useEffect(() => {
-    // Check for fresh load using sessionStorage
     const hasLoaded = sessionStorage.getItem('hasLoaded');
     if (!hasLoaded) {
-      const img = new Image();
-      img.src = '/assets/B3TRBEACHSplashGif.gif';
-      img.onload = () => {
-        console.log('Splash GIF preloaded successfully');
-        setShowSplash(true); // Show splash immediately
-        sessionStorage.setItem('hasLoaded', 'true'); // Mark as loaded
+      const video = document.createElement('video');
+      video.src = '/assets/B3TRBEACHSplashGif.mp4';
+      video.onloadeddata = () => {
+        console.log('Splash MP4 preloaded successfully');
+        setShowSplash(true);
+        sessionStorage.setItem('hasLoaded', 'true');
         const timer = setTimeout(() => {
-          setShowSplash(false); // Hide after 5 seconds
-          setContentReady(true); // Allow content to fade in
+          setShowSplash(false);
+          setContentReady(true);
         }, 5000);
         return () => clearTimeout(timer);
       };
-      img.onerror = () => {
-        console.error('Splash GIF failed to preload at /assets/B3TRBEACHSplashGif.gif');
-        setShowSplash(false); // Skip splash if image fails
-        setContentReady(true); // Proceed with content
+      video.onerror = () => {
+        console.error('Splash MP4 failed to preload');
+        setShowSplash(false);
+        setContentReady(true);
       };
     } else {
-      setShowSplash(false); // Skip splash on navigation
-      setContentReady(true); // Show content immediately
+      setShowSplash(false);
+      setContentReady(true);
     }
 
-    // Intersection Observer for fade-in effect
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -334,6 +392,12 @@ export default function Homepage() {
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
+        }
+        .error-message {
+          display: none;
+        }
+        .error-message.visible {
+          display: block;
         }
       `}</style>
     </div>
