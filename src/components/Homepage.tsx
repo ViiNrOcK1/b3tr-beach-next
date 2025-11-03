@@ -63,7 +63,7 @@ function Header() {
       setShowError(false);
     };
     video.onerror = () => {
-      console.error('Failed to load banner MP4 at /assets/NewB3TRBEACHBannerGif.mp4');
+      console.error('Failed to load banner MP4');
       setShowError(true);
     };
   }, []);
@@ -76,21 +76,23 @@ function Header() {
         muted
         playsInline
         className="absolute top-0 left-0 w-full h-full object-cover"
-	style={{
-	   backgroundSize: '1700px 500px',
-	   objectFit: 'cover',
-	}}
+        style={{
+          backgroundSize: '1700px 500px',
+          objectFit: 'cover',
+        }}
       >
         <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-      <div className={`error-message ${showError ? 'visible' : ''} absolute top-4 left-4 z-10 bg-red-600 text-white p-4 rounded`}>
-        Banner video not loaded. Check file path: /assets/NewB3TRBEACHBannerGif.mp4
-      </div>
+
+      {showError && (
+        <div className="absolute top-4 left-4 z-10 bg-red-600 text-white p-4 rounded">
+          Banner video not loaded. Check path: /assets/NewB3TRBEACHBannerGif.mp4
+        </div>
+      )}
     </header>
   );
 }
-
 function Hero() {
   return (
     <section
