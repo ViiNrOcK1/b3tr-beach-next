@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import DAppKitProviderWrapper from './DAppKitProviderWrapper';
-import { APP_DESCRIPTION } from './config'; // Keep description static if desired
+import { APP_DESCRIPTION } from './config';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,10 +14,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Remove static metadata to allow page-specific titles
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        {/* ← THIS FIXES MOBILE */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
