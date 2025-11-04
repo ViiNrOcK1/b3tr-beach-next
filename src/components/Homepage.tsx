@@ -61,35 +61,26 @@ function Header() {
   }, []);
 
   return (
-    <header className="relative bg-black overflow-hidden">
-      {/* FIX: Replaced fixed height '700px' with responsive Tailwind classes.
-        h-[400px] = 400px height on mobile
-        md:h-[550px] = 550px height on tablet
-        lg:h-[700px] = 700px height on desktop
-      */}
-      <div className="w-full h-[400px] md:h-[550px] lg:h-[700px]">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full"
-          style={{
-            /* FIX: Changed from 'cover' to 'contain'.
-              'contain' ensures the entire video fits inside the container,
-              preventing any part of it from being cut off.
-              This will show the full video, possibly with black bars
-              on the sides if the aspect ratio doesn't match the container.
-            */
-            objectFit: 'contain',
-            objectPosition: 'center',
-          }}
-        >
-          <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    </header>
+<header className="relative bg-black overflow-hidden">
+  <div className="w-full" style={{ height: '700px' }}>
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      className="absolute inset-0 w-full h-full"
+      style={{
+        width: '100%',
+        height: '700px',
+        objectFit: 'fill',     // ← STRETCHES to fill (no black bars)
+        objectPosition: 'center',
+      }}
+    >
+      <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</header>
   );
 }
 
