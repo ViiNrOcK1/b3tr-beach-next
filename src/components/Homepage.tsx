@@ -6,7 +6,7 @@ interface SplashScreenProps {
   onFadeOut: () => void;
 }
 
-// --- SplashScreen (No changes needed here) ---
+// --- SplashScreen ---
 function SplashScreen({ onFadeOut }: SplashScreenProps) {
   const [showError, setShowError] = useState(false);
 
@@ -31,9 +31,9 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
         style={{
           width: '100vw',
           height: '100vh',
-          objectFit: 'contain',
+          objectFit: 'contain',      // ← SHOWS FULL VIDEO
           objectPosition: 'center',
-          transform: 'scale(1.2)',
+          transform: 'scale(1.2)',   // ← ZOOM IN to fill screen
         }}
       >
         <source src="/assets/B3TRBEACHSplashGif.mp4" type="video/mp4" />
@@ -61,30 +61,25 @@ function Header() {
   }, []);
 
   return (
-<header className="relative bg-black overflow-hidden">
-  <div className="w-full" style={{ height: '700px' }}>
-    <video
-      autoPlay
-      loop
-      muted
-      playsInline
-      className="absolute inset-0 w-full h-full"
-      style={{
-        width: '100%',
-        height: '700px',
-        objectFit: 'fill',     // ← STRETCHES to fill (no black bars)
-        objectPosition: 'center',
-      }}
-    >
-      <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-  </div>
-</header>
+    <header className="relative bg-black overflow-hidden">
+      <div className="w-full h-[400px] md:h-[550px] lg:h-[700px]">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          /* FIX: Removed inline style and added a class 'header-video' */
+          className="header-video" 
+        >
+          <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </header>
   );
 }
 
-// --- Hero (No changes needed) ---
+// --- Hero ---
 function Hero() {
   return (
     <section
@@ -127,7 +122,7 @@ function Hero() {
   );
 }
 
-// --- Features (No changes needed) ---
+// --- Features ---
 function Features() {
   return (
     <section
@@ -239,7 +234,7 @@ function Sponsors() {
   );
 }
 
-// --- Download (No changes needed) ---
+// --- Download ---
 function Download() {
   return (
     <section
@@ -288,7 +283,7 @@ function Download() {
   );
 }
 
-// --- Footer (No changes needed) ---
+// --- Footer ---
 function Footer() {
   return (
     <footer className="bg-amber-400 py-6 text-center wave-top">
@@ -409,11 +404,26 @@ export default function Homepage() {
         .error-message.visible {
           display: block;
         }
+
+        /* FIX: Added styles for '.header-video' 
+          - Mobile-first: 'object-fit: cover' (no distortion)
+          - Desktop override: 'object-fit: fill' (stretches to fill)
+        */
+        .header-video {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-position: center;
+          object-fit: cover; /* This is the mobile-first default */
+        }
+
+        @media (min-width: 768px) { /* md: breakpoint */
+          .header-video {
+            object-fit: fill; /* This is the desktop override */
+          }
+        }
       `}</style>
     </div>
   );
 }
-
-
-
-
