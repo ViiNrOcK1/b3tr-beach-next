@@ -1,6 +1,11 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 
+// ← ADD THIS
+interface SplashScreenProps {
+  onFadeOut: () => void;
+}
+
 function SplashScreen({ onFadeOut }: SplashScreenProps) {
   const [showError, setShowError] = useState(false);
 
@@ -26,7 +31,7 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
         style={{
           width: '100vw',
           height: '100vh',
-          objectFit: 'cover',     // Fill screen
+          objectFit: 'cover',
           objectPosition: 'center',
         }}
       >
@@ -40,6 +45,7 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
     </div>
   );
 }
+
 function Header() {
   const [showError, setShowError] = useState(false);
 
@@ -56,7 +62,7 @@ function Header() {
         autoPlay
         muted
         playsInline
-        loop          // ← LOOP FOREVER
+        loop
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover"
         style={{
@@ -66,7 +72,7 @@ function Header() {
           objectPosition: 'center',
         }}
       >
-        <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp8" />
+        <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
       </video>
       {showError && (
         <div className="absolute top-4 left-4 z-10 bg-red-600 text-white p-3 rounded">
@@ -76,8 +82,16 @@ function Header() {
     </header>
   );
 }
+
+// === ADD YOUR ORIGINAL HERO, FEATURES, SPONSORS, DOWNLOAD, FOOTER BELOW ===
+
 export default function Homepage() {
-  const [showSplash, setShowSplash] = useState(true); // ← THIS WAS MISSING
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -85,9 +99,7 @@ export default function Homepage() {
       {!showSplash && (
         <>
           <Header />
-          <div className="bg-yellow-500 p-8 text-white text-center text-2xl font-bold">
-            HEADER WORKS ON MOBILE!
-          </div>
+          {/* Add Hero, Features, etc. here */}
         </>
       )}
     </div>
