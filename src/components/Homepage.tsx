@@ -62,14 +62,16 @@ function Header() {
 
   return (
     <header className="relative bg-black overflow-hidden">
-      <div className="w-full h-[400px] md:h-[550px] lg:h-[700px]">
+      {/* FIX 1: Added 'relative' class to this div. 
+        This makes it the positioning parent for the absolute video. 
+      */}
+      <div className="relative w-full h-[400px] md:h-[550px] lg:h-[700px]">
         <video
           autoPlay
           loop
           muted
           playsInline
-          /* FIX: Removed inline style and added a class 'header-video' */
-          className="header-video" 
+          className="header-video" // This class is now targeted by the *global* style below
         >
           <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
           Your browser does not support the video tag.
@@ -108,7 +110,6 @@ function Hero() {
             𝐓𝐡𝐚𝐧𝐤 𝐲𝐨𝐮 𝐟𝐨𝐫 𝐣𝐨𝐢𝐧𝐢𝐧𝐠 𝐮𝐬 🤟🏽.
           </p>
           <div className="flex justify-center mt-6">
-            {/* FIX: Replaced Link with <a> tag */}
             <a
               href="/instructions"
               className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
@@ -141,7 +142,6 @@ function Features() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-custom-blue p-4 rounded-lg shadow">
-              {/* FIX: Replaced Link with <a> tag */}
               <a
                 href="/events"
                 className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
@@ -153,7 +153,6 @@ function Features() {
               </p>
             </div>
             <div className="bg-custom-blue p-4 rounded-lg shadow">
-              {/* FIX: Replaced Link with <a> tag */}
               <a
                 href="/store"
                 className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
@@ -165,7 +164,6 @@ function Features() {
               </p>
             </div>
             <div className="bg-custom-blue p-4 rounded-lg shadow">
-              {/* FIX: Replaced Link with <a> tag */}
               <a
                 href="#"
                 className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
@@ -185,7 +183,7 @@ function Features() {
   );
 }
 
-// --- Sponsors (Mobile Responsive Fix) ---
+// --- Sponsors ---
 function Sponsors() {
   const [showError, setShowError] = useState(false);
   useEffect(() => {
@@ -200,7 +198,7 @@ function Sponsors() {
       className="py-16 wave-bottom wave-top relative"
       style={{
         backgroundImage: `url('/assets/B3TRBEACHAlter.png')`,
-        backgroundSize: 'cover', // FIX: Changed from fixed pixels to 'cover'
+        backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
       }}
@@ -309,9 +307,8 @@ function Footer() {
   );
 }
 
-// --- Homepage (Splash Screen Logic Fix) ---
+// --- Homepage ---
 export default function Homepage() {
-  // FIX: Start with splash screen visible if it hasn't loaded this session
   const [showSplash, setShowSplash] = useState(() => {
     if (typeof window !== 'undefined') {
       return !sessionStorage.getItem('hasLoaded');
@@ -319,23 +316,18 @@ export default function Homepage() {
     return false;
   });
 
-  // FIX: Removed 'contentReady' state. We only need 'showSplash'.
-  // The main content is visible by default unless the splash is showing.
-
   useEffect(() => {
-    // Logic to hide splash screen and set session storage
     if (showSplash) {
       sessionStorage.setItem('hasLoaded', 'true');
       const timer = setTimeout(() => {
         setShowSplash(false);
-      }, 5000); // 5-second duration
+      }, 5000); 
 
       return () => clearTimeout(timer);
     }
-  }, [showSplash]); // Only run this logic when showSplash changes
+  }, [showSplash]); 
 
   useEffect(() => {
-    // Fade-in content observer
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -347,7 +339,6 @@ export default function Homepage() {
       { threshold: 0.1 }
     );
 
-    // We querySelectorAll *after* the component has rendered
     const elements = document.querySelectorAll('.fade-content');
     elements.forEach((element) => {
       observer.observe(element);
@@ -358,16 +349,12 @@ export default function Homepage() {
         observer.unobserve(element);
       });
     };
-  }, []); // Run this once on mount
+  }, []); 
 
   return (
     <div className="min-h-screen">
-      {/* Splash screen is shown based on state */}
       {showSplash && <SplashScreen onFadeOut={() => setShowSplash(false)} />}
       
-      {/* FIX: Main content is now controlled by 'showSplash' state.
-        It starts invisible and fades in, but is NEVER 'display: none'.
-      */}
       <div className={`main-content ${!showSplash ? 'visible' : 'hidden'}`}>
         <Header />
         <Hero />
@@ -377,22 +364,25 @@ export default function Homepage() {
         <Footer />
       </div>
 
-      <style jsx>{`
+      {/* FIX 2: Added 'global' keyword to <style jsx>.
+        This allows the .header-video styles to apply to the child Header component.
+      */}
+      <style jsx global>{`
         .main-content {
           opacity: 0;
-          visibility: hidden; /* FIX: Use visibility instead of display */
+          visibility: hidden; 
           transition: opacity 0.5s ease-in-out;
         }
         .main-content.visible {
           opacity: 1;
-          visibility: visible; /* FIX: Make visible when ready */
+          visibility: visible;
         }
         .main-content.hidden {
           opacity: 0;
-          visibility: hidden; /* FIX: Keep hidden but in DOM */
+          visibility: hidden;
         }
         .fade-in {
-          animation: fadeIn 1s ease-in-out forwards; /* Added 'forwards' to hold state */
+          animation: fadeIn 1s ease-in-out forwards;
         }
         @keyframes fadeIn {
           from { opacity: 0; }
@@ -405,9 +395,7 @@ export default function Homepage() {
           display: block;
         }
 
-        /* FIX: Added styles for '.header-video' 
-          - Mobile-first: 'object-fit: cover' (no distortion)
-          - Desktop override: 'object-fit: fill' (stretches to fill)
+        /* These styles are now GLOBAL and will apply to .header-video 
         */
         .header-video {
           position: absolute;
@@ -415,15 +403,16 @@ export default function Homepage() {
           width: 100%;
           height: 100%;
           object-position: center;
-          object-fit: cover; /* This is the mobile-first default */
+          object-fit: cover; /* This is the mobile-first default (no distortion) */
         }
 
         @media (min-width: 768px) { /* md: breakpoint */
           .header-video {
-            object-fit: fill; /* This is the desktop override */
+            object-fit: fill; /* This is the desktop override (fills space) */
           }
         }
       `}</style>
     </div>
   );
 }
+
