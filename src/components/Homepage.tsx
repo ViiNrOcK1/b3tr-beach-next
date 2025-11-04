@@ -15,25 +15,24 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
     video.onloadeddata = () => setShowError(false);
     video.onerror = () => setShowError(true);
 
-    const timer = setTimeout(() => {
-      onFadeOut();
-    }, 5000);
+    const timer = setTimeout(() => onFadeOut(), 5000);
     return () => clearTimeout(timer);
   }, [onFadeOut]);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black overflow-hidden">
       <video
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full"
+        className="min-w-full min-h-full"
         style={{
           width: '100vw',
           height: '100vh',
-          objectFit: 'fill',        // ← STRETCHES to fill screen
+          objectFit: 'contain',      // ← SHOWS FULL VIDEO
           objectPosition: 'center',
+          transform: 'scale(1.2)',   // ← ZOOM IN to fill screen
         }}
       >
         <source src="/assets/B3TRBEACHSplashGif.mp4" type="video/mp4" />
@@ -42,7 +41,7 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
 
       {showError && (
         <div className="absolute top-4 left-4 bg-red-600 text-white p-3 rounded z-10">
-          Splash video failed to load.
+          Splash video failed.
         </div>
       )}
     </div>
