@@ -15,29 +15,31 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
     video.onloadeddata = () => setShowError(false);
     video.onerror = () => setShowError(true);
 
-    const timer = setTimeout(() => onFadeOut(), 5000);
+    const timer = setTimeout(() => {
+      onFadeOut();
+    }, 5000);
     return () => clearTimeout(timer);
   }, [onFadeOut]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-hidden">
       <video
         autoPlay
+        loop
         muted
         playsInline
-        loop
-        preload="auto"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full"
         style={{
           width: '100vw',
           height: '100vh',
-          objectFit: 'cover',
+          objectFit: 'fill',        // ← STRETCHES to fill screen
           objectPosition: 'center',
         }}
       >
         <source src="/assets/B3TRBEACHSplashGif.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+
       {showError && (
         <div className="absolute top-4 left-4 bg-red-600 text-white p-3 rounded z-10">
           Splash video failed to load.
@@ -58,30 +60,26 @@ function Header() {
   }, []);
 
   return (
-    <header className="relative bg-black overflow-hidden" style={{ minHeight: '700px' }}>
-      <video
-        autoPlay
-        muted
-        playsInline
-        loop
-        preload="auto"
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{
-          width: '100%',
-          minHeight: '700px',
-          objectFit: 'cover',
-          objectPosition: 'center',
-        }}
-      >
-        <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      {showError && (
-        <div className="absolute top-4 left-4 z-10 bg-red-600 text-white p-3 rounded">
-          Banner video not loaded.
-        </div>
-      )}
-    </header>
+    <header className="relative bg-black overflow-hidden">
+  <div className="w-full" style={{ height: '700px' }}>
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      className="absolute inset-0 w-full h-full"
+      style={{
+        width: '100%',
+        height: '700px',
+        objectFit: 'fill',     // ← STRETCHES to fill (no black bars)
+        objectPosition: 'center',
+      }}
+    >
+      <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</header>
   );
 }
 
