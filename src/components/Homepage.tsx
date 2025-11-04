@@ -24,10 +24,11 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
     <div className="fixed inset-0 z-50 bg-black overflow-hidden">
       <video
         autoPlay
-        loop
-        muted
-        playsInline
-        className="min-w-full min-h-full"
+    muted
+    playsInline
+         loop
+    preload="auto"
+          className="min-w-full min-h-full"
         style={{
           width: '100vw',
           height: '100vh',
