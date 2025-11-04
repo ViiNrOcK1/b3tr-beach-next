@@ -22,21 +22,6 @@ function SplashScreen({ onFadeOut }: { onFadeOut: () => void }) {
   );
 }
 
-export default function Homepage() {
-  const [showSplash, setShowSplash] = useState(true);
-
-  return (
-    <div className="min-h-screen">
-      {showSplash && <SplashScreen onFadeOut={() => setShowSplash(false)} />}
-      {!showSplash && (
-        <div className="bg-green-500 text-white p-8">
-          <h1 className="text-4xl font-bold">SPLASH WORKS</h1>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function Header() {
   return (
     <header className="relative h-screen">
@@ -53,17 +38,20 @@ function Header() {
   );
 }
 
-{!showSplash && (
-  <>
-    <Header />
-    <div className="bg-yellow-500 p-8">HEADER WORKS</div>
-  </>
-)}
+export default function Homepage() {
+  const [showSplash, setShowSplash] = useState(true); // ← THIS WAS MISSING
 
-{!showSplash && (
-  <>
-    <Header />
-    <Hero />
-    <div className="bg-pink-500 p-8">HERO WORKS</div>
-  </>
-)}
+  return (
+    <div className="min-h-screen">
+      {showSplash && <SplashScreen onFadeOut={() => setShowSplash(false)} />}
+      {!showSplash && (
+        <>
+          <Header />
+          <div className="bg-yellow-500 p-8 text-white text-center text-2xl font-bold">
+            HEADER WORKS ON MOBILE!
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
