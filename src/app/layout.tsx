@@ -14,12 +14,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ 
+  children 
+}: { 
+  children: React.ReactNode 
+}) {
   return (
     <html lang="en">
       <head>
-        {/* ← THIS FIXES MOBILE */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {/* MOBILE FIX: Ensures proper scaling on phones/tablets */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
