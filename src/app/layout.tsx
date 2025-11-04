@@ -22,9 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* MOBILE FIX: Ensures proper scaling on phones/tablets */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-      </head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  {/* Debug: Force mobile mode */}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+</head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
