@@ -81,7 +81,7 @@ function Header() {
           Banner video not loaded.
         </div>
       )}
-    </div>
+    </header>
   );
 }
 
