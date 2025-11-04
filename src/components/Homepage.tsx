@@ -64,34 +64,25 @@ function Header() {
 
   return (
     <header className="relative bg-black overflow-hidden">
-      {/* Responsive container */}
-      <div className="w-full flex justify-center items-center" style={{ height: '700px' }}>
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="block max-w-full h-auto"
-          style={{
-            width: '100%',
-            maxWidth: '1700px',
-	    height: '110%',
-            maxHeight: '700px',
-            objectFit: 'cover',
-            objectPosition: 'center',
-          }}
-        >
-          <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      </div>
-
-      {showError && (
-        <div className="absolute top-4 left-4 z-10 bg-red-600 text-white p-3 rounded">
-          Banner not loaded
-        </div>
-      )}
-    </header>
+  <div className="w-full" style={{ height: '700px' }}>
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      className="absolute inset-0 w-full h-full"
+      style={{
+        width: '100%',
+        height: '700px',
+        objectFit: 'fill',     // ← STRETCHES to fill (no black bars)
+        objectPosition: 'center',
+      }}
+    >
+      <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</header>
   );
 }
 
