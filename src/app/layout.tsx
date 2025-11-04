@@ -14,6 +14,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const metadata: Metadata = {
+  title: 'B3TR BEACH',
+  description: APP_DESCRIPTION,
+  viewport: 'width=device-width, initial-scale=1.0',  // ← MOBILE FIX: Add here
+};
+
 export default function RootLayout({ 
   children 
 }: { 
@@ -21,11 +27,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  {/* Debug: Force mobile mode */}
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-</head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
