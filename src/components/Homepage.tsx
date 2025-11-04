@@ -50,33 +50,38 @@ function Header() {
   const [showError, setShowError] = useState(false);
 
   useEffect(() => {
-    const vid = document.createElement('video');
-    vid.src = '/assets/NewB3TRBEACHBannerGif.mp4';
-    vid.onloadeddata = () => setShowError(false);
-    vid.onerror = () => setShowError(true);
+    const video = document.createElement('video');
+    video.src = '/assets/NewB3TRBEACHBannerGif.mp4';
+    video.onloadeddata = () => setShowError(false);
+    video.onerror = () => setShowError(true);
   }, []);
 
   return (
     <header className="relative bg-black overflow-hidden">
-  <div className="w-full" style={{ height: '700px' }}>
-    <video
-      autoPlay
-      loop
-      muted
-      playsInline
-      className="absolute inset-0 w-full h-full"
-      style={{
-        width: '100%',
-        height: '700px',
-        objectFit: 'fill',     // ← STRETCHES to fill (no black bars)
-        objectPosition: 'center',
-      }}
-    >
-      <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-  </div>
-</header>
+      <div className="w-full flex justify-center items-center" style={{ height: '700px' }}>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="block w-full h-full object-cover"
+          style={{
+            width: '100%',
+            height: '700px',
+            objectFit: 'cover',  // Fills screen, no black bars
+            objectPosition: 'center',
+          }}
+        >
+          <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      {showError && (
+        <div className="absolute top-4 left-4 z-10 bg-red-600 text-white p-3 rounded">
+          Banner video not loaded.
+        </div>
+      )}
+    </div>
   );
 }
 
