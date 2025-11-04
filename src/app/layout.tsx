@@ -30,15 +30,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* ← TEMP DEBUG: Remove after fix */}
-        <div style={{ padding: '20px', background: 'yellow' }}>
-          <h1 style={{ color: 'red' }}>DEBUG: Layout Loading</h1>
-          <p>Site is rendering — check console for errors.</p>
-        </div>
-        <DAppKitProviderWrapper>
-          {children}
-        </DAppKitProviderWrapper>
-        {/* ← END DEBUG */}
       </body>
     </html>
   );
