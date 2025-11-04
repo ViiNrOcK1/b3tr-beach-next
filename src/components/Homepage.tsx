@@ -26,22 +26,20 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
         loop
         muted
         playsInline
-        className="min-w-full min-h-full"
+        className="absolute inset-0 w-full h-full"
         style={{
           width: '100vw',
           height: '100vh',
-          objectFit: 'contain',      // ← SHOWS FULL VIDEO
+          objectFit: 'cover',  // Fills screen without distortion
           objectPosition: 'center',
-          transform: 'scale(1.2)',   // ← ZOOM IN to fill screen
         }}
       >
         <source src="/assets/B3TRBEACHSplashGif.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-
       {showError && (
         <div className="absolute top-4 left-4 bg-red-600 text-white p-3 rounded z-10">
-          Splash video failed.
+          Splash video failed to load.
         </div>
       )}
     </div>
