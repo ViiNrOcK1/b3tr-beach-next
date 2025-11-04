@@ -75,7 +75,13 @@ function Header() {
           playsInline
           className="absolute inset-0 w-full h-full"
           style={{
-            objectFit: 'cover', // Use 'cover' to fill space without distortion
+            /* FIX: Changed from 'cover' to 'contain'.
+              'contain' ensures the entire video fits inside the container,
+              preventing any part of it from being cut off.
+              This will show the full video, possibly with black bars
+              on the sides if the aspect ratio doesn't match the container.
+            */
+            objectFit: 'contain',
             objectPosition: 'center',
           }}
         >
@@ -416,4 +422,7 @@ export default function Homepage() {
     </div>
   );
 }
+
+
+
 
