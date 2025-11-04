@@ -12,40 +12,36 @@ function SplashScreen({ onFadeOut }: SplashScreenProps) {
   useEffect(() => {
     const video = document.createElement('video');
     video.src = '/assets/B3TRBEACHSplashGif.mp4';
-    video.onloadeddata = () => {
-      console.log('Splash MP4 loaded successfully');
-      setShowError(false);
-    };
-    video.onerror = () => {
-      console.error('Failed to load splash MP4 at /assets/B3TRBEACHSplashGif.mp4');
-      setShowError(true);
-    };
+    video.onloadeddata = () => setShowError(false);
+    video.onerror = () => setShowError(true);
 
-    const timer = setTimeout(() => {
-      onFadeOut();
-    }, 5000); // 5-second display
-
+    const timer = setTimeout(() => onFadeOut(), 5000);
     return () => clearTimeout(timer);
   }, [onFadeOut]);
 
   return (
-    <div
-      className="splash-screen fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-75 z-50"
-      style={{ backgroundColor: '#000' }}
-    >
+    <div className="fixed inset-0 z-50 bg-black overflow-hidden">
       <video
         autoPlay
         loop
         muted
         playsInline
-        className="w-full h-full object-cover"
+        className="min-w-full min-h-full"
+        style={{
+          width: '100vw',
+          height: '100vh',
+          objectFit: 'contain',      // ← SHOWS FULL VIDEO
+          objectPosition: 'center',
+          transform: 'scale(1.2)',   // ← ZOOM IN to fill screen
+        }}
       >
         <source src="/assets/B3TRBEACHSplashGif.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+
       {showError && (
-        <div className="error-message visible text-white bg-red-600 p-4 rounded absolute top-4 left-4">
-          Splash video not loaded. Check file path: /assets/B3TRBEACHSplashGif.mp4
+        <div className="absolute top-4 left-4 bg-red-600 text-white p-3 rounded z-10">
+          Splash video failed.
         </div>
       )}
     </div>
