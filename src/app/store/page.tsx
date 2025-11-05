@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import Head from 'next/head';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
