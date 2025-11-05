@@ -40,20 +40,18 @@ export default function PurchaseModal({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    console.log('Input change:', name, value);
     setUserDetails(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted with userDetails:', userDetails, 'formRef.current:', formRef.current);
     handleB3TRPayment();
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-3/4">
-        <h3 className="text-2xl font-bold mb-4 text-center">Purchase {selectedProduct?.name || 'Item'}</h3>
+        <h3 className="text-2xl font-bold mb-4 text-center">Please provide the following to process your order:</h3>
         <form ref={formRef} onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-lg font-semibold">Name</label>
@@ -87,26 +85,10 @@ export default function PurchaseModal({
               required
             />
           </div>
-          <input
-            type="hidden"
-            name="item"
-            value={selectedProduct?.name || ''}
-          />
-          <input
-            type="hidden"
-            name="amount"
-            value={selectedProduct?.priceB3TR || ''}
-          />
-          <input
-            type="hidden"
-            name="txId"
-            value={''} // Populated dynamically by handleTransactionUpdate
-          />
-          <input
-            type="hidden"
-            name="timestamp"
-            value={new Date().toISOString()}
-          />
+          <input type="hidden" name="item" value={selectedProduct?.name || ''} />
+          <input type="hidden" name="amount" value={selectedProduct?.priceB3TR || ''} />
+          <input type="hidden" name="txId" value={''} />
+          <input type="hidden" name="timestamp" value={new Date().toISOString()} />
           <p className="text-lg mb-4">Price: {selectedProduct?.priceB3TR} B3TR</p>
           <p className="text-lg mb-4">Wallet: {account || 'Not connected'}</p>
           {paymentStatus && <p className="text-lg mb-4 text-red-500">{paymentStatus}</p>}
@@ -121,20 +103,12 @@ export default function PurchaseModal({
               </button>
             )}
             {account && (
-              <>
-                <button
-                  type="submit"
-                  className="bg-amber-400 text-green-500 px-4 py-2 rounded-lg font-bold hover:bg-black hover:text-green-500"
-                >
-                  Pay with B3TR
-                </button>
-                <Link
-                  href="/pay-with-card" // Replace with your actual payment processor URL
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-600"
-                >
-                  Pay with Credit/Debit
-                </Link>
-              </>
+              <button
+                type="submit"
+                className="bg-amber-400 text-green-500 px-4 py-2 rounded-lg font-bold hover:bg-black hover:text-green-500"
+              >
+                Pay with B3TR
+              </button>
             )}
             <button
               type="button"
@@ -145,6 +119,12 @@ export default function PurchaseModal({
             </button>
           </div>
         </form>
+        <p className="text-lg mt-4 text-green-500 font-semibold text-center" style={{ textShadow: '1px 1px 0 black' }}>
+          Want to use Credit/Debit Instead? Check out the{' '}
+          <Link href="https://vmerch.shop/collections/b3tr-beach" className="underline">
+            V-Merch Shop
+          </Link>
+        </p>
       </div>
     </div>
   );
