@@ -2,7 +2,7 @@
 "use client";
 import Head from 'next/head';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useQuery, QueryObserverResult } from '@tanstack/react-query'; // Added QueryObserverResult
+import { useQuery, QueryObserverResult } from '@tanstack/react-query';
 import { WalletButton, useWallet, useThor, useWalletModal } from '@vechain/dapp-kit-react';
 import { Clause, Units, Address, ABIItem, ABIFunction, FixedPointNumber } from '@vechain/sdk-core';
 import { TransactionReceipt } from '@vechain/sdk-network';
@@ -15,45 +15,14 @@ import { useBeats } from '@/hooks/useBeats';
 import { auth, database } from '@/firebase';
 import { ref, onValue, set, push, update, remove, off, get } from 'firebase/database';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from 'firebase/auth';
-import { FirebaseError } from 'firebase/app'; // Import FirebaseError
+import { FirebaseError } from 'firebase/app';
 
-// --- SVG Icons for Cart ---
-const CartIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="9" cy="21" r="1"></circle>
-    <circle cx="20" cy="21" r="1"></circle>
-    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-  </svg>
-);
-const PlusIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-  </svg>
-);
-const MinusIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-  </svg>
-);
-const TrashIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6"></polyline>
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-    <line x1="10" y1="11" x2="10" y2="17"></line>
-    <line x1="14" y1="11" x2="14" y2="17"></line>
-  </svg>
-);
-
-
-// Extend TransactionReceipt type
 declare module '@vechain/sdk-network' {
   interface TransactionReceipt {
     transferSuccess?: boolean;
   }
 }
 
-// Custom type for executeCall result
 interface CallResult {
   success: boolean;
   result?: bigint | { plain?: unknown; array?: unknown[] | undefined; errorMessage?: string | undefined } | string | undefined;
@@ -65,7 +34,6 @@ interface Window {
   };
 }
 
-// Product interface with id as number or string
 interface Product {
   id: number | string;
   name: string;
@@ -75,7 +43,6 @@ interface Product {
   soldOut?: boolean;
 }
 
-// --- NEW: CartItem Interface ---
 interface CartItem extends Product {
   quantity: number;
 }
@@ -103,7 +70,36 @@ interface RefetchRefs {
   refetchReceipt: () => Promise<QueryObserverResult<TransactionReceipt | null, Error>>;
 }
 
-// --- NEW: CartModal Component ---
+const CartIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="9" cy="21" r="1"></circle>
+    <circle cx="20" cy="21" r="1"></circle>
+    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+  </svg>
+);
+
+const PlusIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+);
+
+const MinusIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"></polyline>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+    <line x1="10" y1="11" x2="10" y2="17"></line>
+    <line x1="14" y1="11" x2="14" y2="17"></line>
+  </svg>
+);
+
 interface CartModalProps {
   cart: CartItem[];
   onClose: () => void;
@@ -114,10 +110,9 @@ interface CartModalProps {
 
 function CartModal({ cart, onClose, onAdjustQuantity, onCheckout, cartTotal }: CartModalProps) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <h3 className="text-2xl font-bold mb-4 text-center">Your Cart</h3>
-        
         {cart.length === 0 ? (
           <p className="text-center text-gray-600">Your cart is empty.</p>
         ) : (
@@ -147,7 +142,6 @@ function CartModal({ cart, onClose, onAdjustQuantity, onCheckout, cartTotal }: C
             ))}
           </div>
         )}
-
         {cart.length > 0 && (
           <>
             <div className="flex justify-between items-center text-xl font-bold my-4">
@@ -162,7 +156,6 @@ function CartModal({ cart, onClose, onAdjustQuantity, onCheckout, cartTotal }: C
             </button>
           </>
         )}
-        
         <button
           type="button"
           className="w-full bg-gray-400 text-red-500 px-4 py-2 rounded-lg font-bold mt-2 hover:bg-red-600 hover:text-white"
@@ -175,16 +168,14 @@ function CartModal({ cart, onClose, onAdjustQuantity, onCheckout, cartTotal }: C
   );
 }
 
-
 export default function StorePage() {
-  // --- FIX: Added proper types to useState hooks ---
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [thankYouProduct, setThankYouProduct] = useState<Product | null>(null);
   const [thankYouTxId, setThankYouTxId] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
-  const [formProduct, setFormProduct] = useState<Omit<Product, 'id'> & { id?: string | number }>({
+  const [formProduct, setFormProduct] = useState<Product>({
     id: 0,
     name: '',
     priceUSD: 0,
@@ -192,7 +183,7 @@ export default function StorePage() {
     description: '',
     soldOut: false,
   });
-  const [editProductId, setEditProductId] = useState<string | number | null>(null);
+  const [editProductId, setEditProductId] = useState<number | string | null>(null);
   const [txId, setTxId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userDetails, setUserDetails] = useState<UserDetails>({
@@ -310,88 +301,8 @@ export default function StorePage() {
   });
 
   useEffect(() => {
-    refetchRefs.current = {
-      refetchB3TR: initialRefetchB3TR as any, // Cast to any to satisfy RefetchRefs
-      refetchVTHO: initialRefetchVTHO as any,
-      refetchReceipt: initialRefetchReceipt as any
-    };
+    refetchRefs.current = { refetchB3TR: initialRefetchB3TR, refetchVTHO: initialRefetchVTHO, refetchReceipt: initialRefetchReceipt };
   }, [initialRefetchB3TR, initialRefetchVTHO, initialRefetchReceipt]);
-
-  // --- FIX: Added useEffect for IntersectionObserver ---
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('fade-in');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const elements = document.querySelectorAll('.fade-content');
-    elements.forEach((element) => observer.observe(element));
-    
-    return () => {
-      elements.forEach((element) => observer.unobserve(element));
-    };
-  }, []); // Run this once on mount
-
-  
-  const handleTransactionUpdate = useCallback(() => {
-    if (!receipt || !selectedProduct || !txId || !account || transactionComplete) return;
-
-    const status = receipt.reverted ? 'reverted' : 'success';
-    
-    if (status === 'success') {
-      setTransactionComplete(true);
-      setPaymentStatus('Transaction completed successfully!');
-      setThankYouTxId(txId);
-      setThankYouProduct(selectedProduct);
-      setShowThankYou(true);
-      setCart([]); // Clear the cart
-
-      const newPurchase: Purchase = {
-        item: selectedProduct.name,
-        amount: selectedProduct.priceB3TR,
-        account,
-        txId,
-        timestamp: new Date().toISOString(),
-        userName: userDetails.name,
-        userEmail: userDetails.email,
-        userAddress: userDetails.address,
-      };
-
-      const purchasesRef = ref(database, 'purchases');
-      push(purchasesRef, newPurchase)
-        .then(() => {
-          console.log('Purchase recorded in Firebase');
-          if (formRef.current) {
-            emailjs.sendForm('B3TRBEACH', 'B3TRConfirm', formRef.current, '-yJ3RZmkCyvjwXcnb')
-              .then((res) => console.log('Confirmation email sent:', res.text))
-              .catch(err => console.error('Email send error:', err));
-          }
-        })
-        .catch(err => console.error('Firebase save error:', err));
-      
-      debounceRefetch(refetchRefs.current.refetchB3TR);
-      
-    } else if (status === 'reverted') {
-      setPaymentStatus('Payment failed: Transaction reverted.');
-      setTxId(null);
-      setSelectedProduct(null);
-      setTransactionComplete(false);
-    }
-  }, [receipt, selectedProduct, txId, account, transactionComplete, userDetails, debounceRefetch]);
-
-
-  useEffect(() => {
-    if (receipt) {
-      handleTransactionUpdate();
-    }
-  }, [receipt, handleTransactionUpdate]);
-
 
   useEffect(() => {
     const productsRef = ref(database, 'products');
@@ -410,96 +321,21 @@ export default function StorePage() {
       } else {
         setProducts([]);
       }
-    }, (err) => {
-        const firebaseErr = err as FirebaseError; // Cast to FirebaseError
-        console.error('Firebase read error:', firebaseErr);
-        if (firebaseErr.code !== 'permission_denied') {
-            setError('Could not fetch products.');
-        } else {
-            setProducts([]); // Silently fail on permission denied
-        }
     });
+    return () => unsubscribe();
+  }, []);
 
-    const authUnsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAdminLoggedIn(!!user);
-    });
-
-    return () => {
-        unsubscribe(); // Detach the onValue listener
-        authUnsubscribe(); // Detach the auth listener
+  useEffect(() => {
+    const init = async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      onAuthStateChanged(auth, (user) => setIsAdminLoggedIn(!!user));
     };
-  }, []);
-
-  const handleAdminLogin = useCallback(async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    try {
-      await setPersistence(auth, browserLocalPersistence);
-      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
-      setShowLoginModal(false);
-      setError(null);
-    } catch (err) {
-      setError('Login failed. Check credentials.');
-      console.error('Login error:', err);
-    }
-  }, [loginEmail, loginPassword]);
-
-  const handleAdminLogout = useCallback(async () => {
-    if (window.confirm('Are you sure you want to log out?')) {
-      await signOut(auth);
-      setShowManageForm(false);
-    }
-  }, []);
-
-  const handleFormSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formProduct.name || formProduct.priceUSD <= 0 || formProduct.priceB3TR <= 0) {
-      alert('Please fill in all fields with valid values.');
-      return;
-    }
-
-    const productData = {
-        name: formProduct.name,
-        priceUSD: formProduct.priceUSD,
-        priceB3TR: formProduct.priceB3TR,
-        description: formProduct.description,
-        soldOut: formProduct.soldOut || false,
-    };
-
-    try {
-        if (editProductId) {
-            const productRef = ref(database, `products/${editProductId}`);
-            await update(productRef, productData);
-        } else {
-            const productsRef = ref(database, 'products');
-            const newProductRef = push(productsRef);
-            await set(newProductRef, productData);
-        }
-        setFormProduct({ name: '', priceUSD: 0, priceB3TR: 0, description: '', soldOut: false });
-        setEditProductId(null);
-        setShowManageForm(false);
-    } catch (err) {
-        console.error("Firebase write error:", err);
-        alert("Failed to save product.");
-    }
-  }, [formProduct, editProductId]);
-
-
-  const handleEditProduct = useCallback((product: Product) => {
-    setEditProductId(product.id);
-    setFormProduct({ ...product }); // Spread the product to fill the form
-    setShowManageForm(true);
-  }, []);
-
-  const handleDeleteProduct = useCallback(async (productId: string | number) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      const productRef = ref(database, `products/${productId}`);
-      await remove(productRef);
-    }
+    init();
   }, []);
 
   const addToCart = useCallback((product: Product) => {
     if (product.soldOut) return;
-    setCart((prev: CartItem[]) => { // Added type
+    setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
       return [...prev, { ...product, quantity: 1 }];
@@ -507,112 +343,43 @@ export default function StorePage() {
   }, []);
 
   const adjustQuantity = useCallback((productId: string | number, newQuantity: number) => {
-    setCart((prevCart: CartItem[]) => { // Added type
-      if (newQuantity <= 0) {
-        return prevCart.filter(item => item.id !== productId);
-      }
-      return prevCart.map(item =>
-        item.id === productId ? { ...item, quantity: newQuantity } : item
-      );
+    setCart(prev => {
+      if (newQuantity <= 0) return prev.filter(item => item.id !== productId);
+      return prev.map(item => item.id === productId ? { ...item, quantity: newQuantity } : item);
     });
   }, []);
 
   const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.priceB3TR * item.quantity, 0), [cart]);
   const cartItemCount = useMemo(() => cart.reduce((total, item) => total + item.quantity, 0), [cart]);
 
-  const handleCheckout = useCallback(() => { // Replaced makePurchase
-    if (cart.length === 0) {
-        alert("Your cart is empty!");
-        return;
-    }
-    const virtualProduct: Product = {
-      id: 'cart-summary',
-      name: `B3TR BEACH Order (${cartItemCount} Item${cartItemCount > 1 ? 's' : ''})`,
-      priceUSD: cart.reduce((total, item) => total + (item.priceUSD * item.quantity), 0),
-      priceB3TR: cartTotal,
-      description: cart.map(item => `${item.name} (x${item.quantity})`).join(', '),
-      soldOut: false
-    };
-    setSelectedProduct(virtualProduct);
-    setPaymentStatus('');
-    setEmailError(null);
-    setUserDetails({ name: '', email: '', address: '' });
-    setShowThankYou(false);
-    setTransactionComplete(false);
-    setThankYouTxId(null);
-    setThankYouProduct(null);
+  const handleCheckout = useCallback(() => {
+    if (cart.length === 0) return;
+    const total = cart.reduce((sum, item) => sum + item.priceB3TR * item.quantity, 0);
+    setSelectedProduct({ ...cart[0], priceB3TR: total });
     setShowCartModal(false);
-  }, [cart, cartTotal, cartItemCount]);
-
+  }, [cart]);
 
   const handleB3TRPayment = useCallback(async () => {
     if (!account) {
       openWalletModal();
       return;
     }
-    if (!thor || !signer || !selectedProduct) {
-        alert("Payment system error. Please refresh.");
-        return;
-    }
-    if (!userDetails.name || !userDetails.email || !userDetails.address.trim()) {
-        alert("Please fill in your name, email, and address.");
-        return;
-    }
-    if (balanceData === null || Number(balanceData) < selectedProduct.priceB3TR) {
-        alert(`Insufficient B3TR balance. Required: ${selectedProduct.priceB3TR}`);
-        return;
-    }
-    if (vthoData === null || Number(vthoData) < 1) {
-        alert("Insufficient VTHO for transaction fees.");
-        return;
-    }
-
-    setPaymentStatus('Processing transaction...');
+    if (!thor || !signer || !selectedProduct) return;
+    if (!userDetails.email || !userDetails.address.trim()) return;
+    if (Number(balanceData) < selectedProduct.priceB3TR) return;
     try {
-      const clause = Clause.callFunction(
-          Address.of(b3trContractAddress),
-          ABIItem.ofSignature(ABIFunction, 'function transfer(address to, uint256 amount) returns (bool)'),
-          [Address.of(RECIPIENT_ADDRESS).toString(), Units.parseUnits(selectedProduct.priceB3TR.toString(), b3trDecimals).toString()]
+      const clause = Clause.callFungible(
+        b3trContractAddress,
+        RECIPIENT_ADDRESS,
+        Units.parseUnits(selectedProduct.priceB3TR.toString(), b3trDecimals)
       );
-      
-      // Corrected: Build tx, then sign, then send
-      const tx = thor.transactions.buildTransaction(clause);
-      const signedTx = await signer.signTransaction(tx);
-      const sentTx = await thor.transactions.sendTransaction(signedTx);
-      
-      setTxId(sentTx.id);
-      setPaymentStatus(`Transaction sent: ${sentTx.id}`);
-    } catch (error: any) {
+      const tx = await signer.sendTransaction([clause]);
+      setTxId(tx.id);
+      setPaymentStatus(`Transaction sent: ${tx.id}`);
+    } catch (error) {
       setPaymentStatus(`Error: ${error.message}`);
-      console.error('Payment failed:', error);
     }
-  }, [account, thor, signer, selectedProduct, userDetails, balanceData, vthoData, openWalletModal]); // Added openWalletModal
-
-  const closeModal = useCallback(() => {
-    setSelectedProduct(null);
-    setPaymentStatus('');
-    setTxId(null);
-    setUserDetails({ name: '', email: '', address: '' });
-    setTransactionComplete(false);
-    setThankYouProduct(null);
-    setThankYouTxId(null);
-  }, []);
-
-  const handleWalletConnect = useCallback(async () => {
-    try {
-      await connect('veworld');
-    } catch (err) {
-      console.error('Manual connect failed:', err);
-    }
-  }, [connect]);
-
-  const handleManageProductsClick = useCallback(() => {
-    if (!isAdminLoggedIn) {
-      setShowLoginModal(true);
-    } else {
-      setShowManageForm(true);
-    }
-  }, [isAdminLoggedIn]);
+  }, [account, thor, signer, selectedProduct, userDetails, balanceData]);
 
   const handleViewTxClick = useCallback(() => {
     if (!isAdminLoggedIn) {
@@ -622,9 +389,13 @@ export default function StorePage() {
     }
   }, [isAdminLoggedIn]);
 
-  const handleDisconnect = useCallback(() => {
-    disconnect();
-  }, [disconnect]);
+  const handleManageProductsClick = useCallback(() => {
+    if (!isAdminLoggedIn) {
+      setShowLoginModal(true);
+    } else {
+      setShowManageForm(true);
+    }
+  }, [isAdminLoggedIn]);
 
   return (
     <>
@@ -660,7 +431,7 @@ export default function StorePage() {
               {balanceData && <p className="text-xl mb-4">B3TR: {balanceData}</p>}
               {vthoData && <p className="text-xl mb-4">VTHO: {vthoData}</p>}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {products.length > 0 ? products.map((product) => (
+                {products.map((product) => (
                   <div key={product.id} className="bg-custom-blue p-4 rounded-lg shadow text-center">
                     <p className="text-2xl font-bold text-white">
                       {product.name.split(' ').map((word, i) =>
@@ -671,14 +442,19 @@ export default function StorePage() {
                     <p className="text-xl text-white">{product.description}</p>
                     <button
                       onClick={() => addToCart(product)}
-                      disabled={product.soldOut}
-                      className={`text-2xl font-bold px-4 py-2 rounded-lg mt-4 ${product.soldOut ? 'bg-gray-500 text-gray-300 cursor-not-allowed' : 'bg-amber-400 text-green-500 hover:bg-black hover:text-green-500'}`}
+                      className="bg-amber-400 text-green-500 px-4 py-2 rounded-lg mt-4"
                     >
-                      {product.soldOut ? 'Sold Out' : 'Add to Cart'}
+                      Add to Cart
                     </button>
                   </div>
-                )) : <p className="text-xl">Loading products...</p>}
+                ))}
               </div>
+              <button
+                onClick={() => setShowCartModal(true)}
+                className="bg-amber-400 text-green-500 px-6 py-3 rounded-lg mt-6"
+              >
+                Cart {cart.length > 0 && <span className="ml-2 bg-red-500 text-white rounded-full w-6 h-6">{cart.length}</span>}
+              </button>
               <Link
                 href="/"
                 className="bg-amber-400 text-green-500 text-2xl font-bold px-4 py-2 rounded-lg mt-4 mb-12 inline-block"
@@ -706,97 +482,17 @@ export default function StorePage() {
           </div>
         </footer>
 
-        {/* --- MODALS --- */}
-
-        {/* Cart Modal */}
         {showCartModal && (
           <CartModal
             cart={cart}
             onClose={() => setShowCartModal(false)}
             onAdjustQuantity={adjustQuantity}
-            onCheckout={handleCheckout} // Use handleCheckout
+            onCheckout={handleCheckout}
             cartTotal={cartTotal}
           />
         )}
 
-        {/* Login Modal */}
-        {showLoginModal && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-              <h3 className="text-2xl font-bold mb-4">Admin Login</h3>
-              <form onSubmit={handleAdminLogin}>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full p-2 border rounded mb-2"
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full p-2 border rounded mb-4"
-                  required
-                />
-                {error && <p className="text-red-500 mb-2">{error}</p>}
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded mr-2">Login</button>
-                <button type="button" onClick={() => setShowLoginModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Manage Products Modal (Add) */}
-        {isAdminLoggedIn && showManageForm && !editProductId && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-3/4">
-              <h3 className="text-2xl font-bold mb-4 text-center">Add New Product</h3>
-              <form onSubmit={handleFormSubmit}>
-                 <input type="text" placeholder="Name" value={formProduct.name} onChange={e => setFormProduct({...formProduct, name: e.target.value})} className="w-full p-2 mb-2 border rounded" required />
-                 <input type="number" placeholder="Price (USD)" value={formProduct.priceUSD} onChange={e => setFormProduct({...formProduct, priceUSD: Number(e.target.value)})} className="w-full p-2 mb-2 border rounded" required />
-                 <input type="number" placeholder="Price (B3TR)" value={formProduct.priceB3TR} onChange={e => setFormProduct({...formProduct, priceB3TR: Number(e.target.value)})} className="w-full p-2 mb-2 border rounded" required />
-                 <textarea placeholder="Description" value={formProduct.description} onChange={e => setFormProduct({...formProduct, description: e.target.value})} className="w-full p-2 mb-2 border rounded" required />
-                 <label className="flex items-center">
-                   <input type="checkbox" checked={formProduct.soldOut} onChange={e => setFormProduct({...formProduct, soldOut: e.target.checked})} className="mr-2"/>
-                   Sold Out
-                 </label>
-                 <div className="mt-4">
-                   <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg mr-2">Save Product</button>
-                   <button type="button" onClick={() => {setShowManageForm(false); setEditProductId(null);}} className="bg-gray-400 px-4 py-2 rounded-lg">Cancel</button>
-                 </div>
-              </form>
-            </div>
-          </div>
-        )}
-        
-        {/* Manage Products Modal (Edit) */}
-        {isAdminLoggedIn && showManageForm && editProductId && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-3/4">
-              <h3 className="text-2xl font-bold mb-4 text-center">Edit Product</h3>
-              <form onSubmit={handleFormSubmit}>
-                 <input type="text" placeholder="Name" value={formProduct.name} onChange={e => setFormProduct({...formProduct, name: e.target.value})} className="w-full p-2 mb-2 border rounded" required />
-                 <input type="number" placeholder="Price (USD)" value={formProduct.priceUSD} onChange={e => setFormProduct({...formProduct, priceUSD: Number(e.target.value)})} className="w-full p-2 mb-2 border rounded" required />
-                 <input type="number" placeholder="Price (B3TR)" value={formProduct.priceB3TR} onChange={e => setFormProduct({...formProduct, priceB3TR: Number(e.target.value)})} className="w-full p-2 mb-2 border rounded" required />
-                 <textarea placeholder="Description" value={formProduct.description} onChange={e => setFormProduct({...formProduct, description: e.target.value})} className="w-full p-2 mb-2 border rounded" required />
-                 <label className="flex items-center">
-                   <input type="checkbox" checked={formProduct.soldOut} onChange={e => setFormProduct({...formProduct, soldOut: e.target.checked})} className="mr-2"/>
-                   Sold Out
-                 </label>
-                 <div className="mt-4">
-                   <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg mr-2">Save Changes</button>
-                   <button type="button" onClick={() => {setShowManageForm(false); setEditProductId(null);}} className="bg-gray-400 px-4 py-2 rounded-lg">Cancel</button>
-                 </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Purchase Modal */}
-        {selectedProduct && !showThankYou && !showCartModal && (
+        {selectedProduct && !showThankYou && (
           <PurchaseModal
             selectedProduct={selectedProduct}
             userDetails={userDetails}
@@ -806,31 +502,61 @@ export default function StorePage() {
             formRef={formRef}
             handleB3TRPayment={handleB3TRPayment}
             openWalletModal={openWalletModal}
-            closeModal={closeModal}
-            cartTotal={cartTotal} // Pass cartTotal
+            closeModal={() => {
+              setPaymentStatus('');
+              setUserDetails({ name: '', email: '', address: '' });
+              setSelectedProduct(null);
+            }}
           />
         )}
-        
-        {/* Thank You Modal */}
-        {showThankYou && (
+
+        {/* Original Manage Products Modal */}
+        {isAdminLoggedIn && showManageForm && editProductId === null && (
           <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-3/4 text-center overflow-auto">
-              <ThankYouPage
-                txId={thankYouTxId}
-                selectedProduct={thankYouProduct}
-                userDetails={userDetails}
-                emailError={emailError}
-                onClose={() => {
-                  setShowThankYou(false);
-                  setTxId(null);
-                  setSelectedProduct(null);
-                  setThankYouTxId(null);
-                  setThankYouProduct(null);
-                  setUserDetails({ name: '', email: '', address: '' });
-                  setTransactionComplete(false);
-                  setEmailError(null);
-                }}
-              />
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-3/4">
+              <h3 className="text-2xl font-bold mb-4 text-center">Manage Products - Add New</h3>
+              <form onSubmit={handleFormSubmit} ref={formRef}>
+                <div className="mb-4">
+                  <label className="block text-lg font-semibold">Name</label>
+                  <input type="text" name="name" className="w-full p-2 border border-gray-300 rounded-lg" value={formProduct.name} onChange={(e) => setFormProduct({ ...formProduct, name: e.target.value })} required />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-lg font-semibold">Price (USD)</label>
+                  <input type="number" name="priceUSD" className="w-full p-2 border border-gray-300 rounded-lg" value={formProduct.priceUSD} onChange={(e) => setFormProduct({ ...formProduct, priceUSD: Number(e.target.value) || 0 })} required min="0" />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-lg font-semibold">Price (B3TR)</label>
+                  <input type="number" name="priceB3TR" className="w-full p-2 border border-gray-300 rounded-lg" value={formProduct.priceB3TR} onChange={(e) => setFormProduct({ ...formProduct, priceB3TR: Number(e.target.value) || 0 })} required min="0" />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-lg font-semibold">Description</label>
+                  <textarea name="description" className="w-full p-2 border border-gray-300 rounded-lg" value={formProduct.description} onChange={(e) => setFormProduct({ ...formProduct, description: e.target.value })} required />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-lg font-semibold">Status</label>
+                  <button type="button" className={`px-4 py-2 rounded-lg ${formProduct.soldOut ? 'bg-red-500 text-white' : 'bg-green-500 text-white'} hover:${formProduct.soldOut ? 'bg-red-600' : 'bg-green-600'}`} onClick={() => setFormProduct(prev => ({ ...prev, soldOut: !prev.soldOut }))}>
+                    {formProduct.soldOut ? 'In Stock' : 'Sold Out'}
+                  </button>
+                </div>
+                <button type="submit" className="bg-amber-400 text-green-500 px-4 py-2 rounded-lg font-bold hover:bg-black hover:text-green-500">Add Product</button>
+                <button type="button" className="bg-gray-400 text-red-500 px-4 py-2 rounded-lg font-bold ml-2 hover:bg-red-600 hover:text-white" onClick={() => setShowManageForm(false)}>Close</button>
+              </form>
+              <h4 className="text-xl font-semibold mt-6 mb-4">Existing Products</h4>
+              <ul className="list-disc pl-5">
+                {products.map((product) => (
+                  <li key={product.id} className="mb-2">
+                    {product.name} - ${product.priceUSD} (${product.priceB3TR} B3TR)
+                    <button className="bg-amber-400 text-green-500 px-2 py-1 rounded-lg ml-2 hover:bg-black hover:text-green-500" onClick={() => handleEditProduct(product)}>Edit</button>
+                    <button className="bg-red-500 text-white px-2 py-1 rounded-lg ml-2 hover:bg-red-600" onClick={() => handleDeleteProduct(product.id)}>Delete</button>
+                    <button className={`ml-2 px-2 py-1 rounded-lg ${product.soldOut ? 'bg-red-500 text-white' : 'bg-green-500 text-white'} hover:${product.soldOut ? 'bg-red-600' : 'bg-green-600'}`} onClick={() => {
+                      const productRef = ref(database, `products/${product.id}`);
+                      update(productRef, { soldOut: !product.soldOut });
+                    }}>
+                      {product.soldOut ? 'In Stock' : 'Sold Out'}
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         )}
@@ -848,10 +574,8 @@ export default function StorePage() {
             </span>
           )}
         </button>
-
       </div>
-      
-      {/* --- FIX: Added global style for fade-in --- */}
+
       <style jsx global>{`
         .fade-content {
           opacity: 0;
