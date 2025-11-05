@@ -16,56 +16,17 @@ import { auth, database } from '@/firebase';
 import { ref, onValue, set, push, update, remove, off, get } from 'firebase/database';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
+import type { 
+  CallResult,
+  Window, 
+  Product, 
+  UserDetails, 
+  Purchase, 
+  CartItem, 
+  RefetchRefs 
+} from '@/types';
 
 
-// Custom type for executeCall result
-interface CallResult {
-  success: boolean;
-  result?: bigint | { plain?: unknown; array?: unknown[] | undefined; errorMessage?: string | undefined } | string | undefined;
-}
-
-interface Window {
-  ethereum?: {
-    request: (args: { method: string; params?: any[] }) => Promise<any>;
-  };
-}
-
-// Product interface with id as number or string
-interface Product {
-  id: number | string;
-  name: string;
-  priceUSD: number;
-  priceB3TR: number;
-  description: string;
-  soldOut?: boolean;
-}
-
-interface UserDetails {
-  name: string;
-  email: string;
-  address: string;
-}
-
-interface Purchase {
-  item: string;
-  amount: number;
-  account: string;
-  txId: string;
-  timestamp: string;
-  userName: string;
-  userEmail: string;
-  userAddress: string;
-}
-
-interface CartItem extends Product {
-  quantity: number;
-}
-
-interface RefetchRefs {
-  refetchB3TR: () => Promise<QueryObserverResult<string | null, Error>>;
-  refetchVTHO: () => Promise<QueryObserverResult<string | null, Error>>;
-  refetchReceipt: () => Promise<QueryObserverResult<TransactionReceipt | null, Error>>;
-}
 
 export default function StorePage() {
   const [products, setProducts] = useState<Product[]>([]);
