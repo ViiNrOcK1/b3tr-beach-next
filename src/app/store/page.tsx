@@ -91,7 +91,7 @@ export default function StorePage() {
       try {
         const result: any = await thor.contracts.executeCall(
           b3trContractAddress,
-          ABIItem.ofSignature(ABIFunction, 'function balanceOf(address owner) view returns (uint256)'),
+          ABIItem.ofSignature(ABIFunction, 'function balanceOf(address) view returns (uint256)'),
           [Address.of(account).toString()]
         );
         let balanceValue = '0';
@@ -161,9 +161,13 @@ export default function StorePage() {
     const unsubscribe = onValue(productsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const loaded = Object.entries(data).map(([key, value]) => ({
+        const loaded = Object.entries(data).map(([key, value]: [string, any]) => ({
           id: key,
-          ...value
+          name: value.name || 'Unnamed',
+          priceUSD: value.priceUSD || 0,
+          priceB3TR: value.priceB3TR || 0,
+          description: value.description || '',
+          soldOut: value.soldOut || false,
         }));
         setProducts(loaded);
       } else {
@@ -190,19 +194,14 @@ export default function StorePage() {
     });
   }, []);
 
-  const updateQuantity = useCallback((productId, delta) => {
-    setCart(prev => prev.map(item =>
-      item.id === productId ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
-    ).filter(item => item.quantity > 0));
-  }, []);
-
   const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.priceB3TR * item.quantity, 0), [cart]);
 
   const makePurchase = useCallback(() => {
     if (cart.length === 0) return;
-    setSelectedProduct({ ...cart[0], priceB3TR: cartTotal });
+    const total = cart.reduce((sum, item) => sum + item.priceB3TR * item.quantity, 0);
+    setSelectedProduct({ ...cart[0], priceB3TR: total });
     setShowCartModal(false);
-  }, [cart, cartTotal]);
+  }, [cart]);
 
   const handleB3TRPayment = useCallback(async () => {
     if (!account) {
@@ -335,6 +334,23 @@ export default function StorePage() {
               </button>
             </div>
           </div>
+        )}
+        {selectedProduct && !showThankYou && (
+          <PurchaseModal
+            selectedProduct={selectedProduct}
+            userDetails={userDetails}
+            setUserDetails={setUserDetails}
+            paymentStatus={paymentStatus}
+            account={account}
+            formRef={formRef}
+            handleB3TRPayment={handleB3TRPayment}
+            openWalletModal={openWalletModal}
+            closeModal={() => {
+              setPaymentStatus('');
+              setUserDetails({ name: '', email: '', address: '' });
+              setSelectedProduct(null);
+            }}
+          />
         )}
       </div>
     </>
