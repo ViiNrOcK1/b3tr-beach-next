@@ -1,4 +1,4 @@
-// @ts-nocheck
+// src/app/store/page.tsx
 "use client";
 import Head from 'next/head';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -17,12 +17,12 @@ import { ref, onValue, set, push, update, remove, off, get } from 'firebase/data
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from 'firebase/auth';
 
 export default function StorePage() {
-  const [products, setProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [thankYouProduct, setThankYouProduct] = useState(null);
-  const [thankYouTxId, setThankYouTxId] = useState(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [thankYouProduct, setThankYouProduct] = useState<any>(null);
+  const [thankYouTxId, setThankYouTxId] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState('');
-  const [emailError, setEmailError] = useState(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [formProduct, setFormProduct] = useState({
     id: 0,
     name: '',
@@ -31,9 +31,9 @@ export default function StorePage() {
     description: '',
     soldOut: false,
   });
-  const [editProductId, setEditProductId] = useState(null);
-  const [txId, setTxId] = useState(null);
-  const [error, setError] = useState(null);
+  const [editProductId, setEditProductId] = useState<number | string | null>(null);
+  const [txId, setTxId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [userDetails, setUserDetails] = useState({
     name: '',
     email: '',
@@ -46,9 +46,9 @@ export default function StorePage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState<any[]>([]);
   const [showCartModal, setShowCartModal] = useState(false);
-  const formRef = useRef(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const { account, signer, connect, disconnect } = useWallet();
   const thor = useThor();
   const { open: openWalletModal } = useWalletModal();
@@ -56,7 +56,7 @@ export default function StorePage() {
   const b3trDecimals = 18;
 
   const lastRefetch = useRef(0);
-  const debounceRefetch = useCallback((refetchFn) => {
+  const debounceRefetch = useCallback((refetchFn: () => Promise<any>) => {
     const now = Date.now();
     if (now - lastRefetch.current > 10000) {
       lastRefetch.current = now;
@@ -89,7 +89,7 @@ export default function StorePage() {
     queryFn: async () => {
       if (!account || !thor) return null;
       try {
-        const result = await thor.contracts.executeCall(
+        const result: any = await thor.contracts.executeCall(
           b3trContractAddress,
           ABIItem.ofSignature(ABIFunction, 'function balanceOf(address owner) view returns (uint256)'),
           [Address.of(account).toString()]
@@ -152,75 +152,21 @@ export default function StorePage() {
     refetchRefs.current = { refetchB3TR: initialRefetchB3TR, refetchVTHO: initialRefetchVTHO, refetchReceipt: initialRefetchReceipt };
   }, [initialRefetchB3TR, initialRefetchVTHO, initialRefetchReceipt]);
 
-  const handleTransactionUpdate = useMemo(() => {
-    return () => {
-      if (transactionComplete || !receipt || !selectedProduct || !txId || !account) return;
-      try {
-        const status = receipt.reverted ? 'reverted' : 'success';
-        if (status === 'success') {
-          setThankYouTxId(txId);
-          setThankYouProduct(selectedProduct);
-          setShowThankYou(true);
-          setTransactionComplete(true);
-          setPaymentStatus('Transaction completed successfully!');
-          const newPurchase = {
-            item: selectedProduct.name,
-            amount: selectedProduct.priceB3TR,
-            account,
-            txId,
-            timestamp: new Date().toISOString(),
-            userName: userDetails.name,
-            userEmail: userDetails.email,
-            userAddress: userDetails.address,
-          };
-          push(ref(database, 'purchases'), newPurchase);
-          emailjs.send('B3TRBEACH', 'B3TRConfirm', {
-            from_name: userDetails.name,
-            to_name: userDetails.name,
-            email: userDetails.email,
-            userEmail: userDetails.email,
-            to_email: userDetails.email,
-            user_address: userDetails.address,
-            itemName: selectedProduct.name,
-            priceB3TR: `${selectedProduct.priceB3TR} B3TR`,
-            totalPriceB3TR: `${selectedProduct.priceB3TR} B3TR`,
-            transactionId: txId,
-            shipping: 'Free',
-            timestamp: new Date().toISOString(),
-          }, '-yJ3RZmkCyvjwXcnb');
-        } else if (status === 'reverted') {
-          setPaymentStatus('Payment failed: Transaction reverted.');
-          setTransactionComplete(false);
-          setShowThankYou(false);
-          setTxId(null);
-          setSelectedProduct(null);
-        }
-      } catch (err) {
-        console.error('Error in handleTransactionUpdate:', err);
-        setPaymentStatus('Error processing transaction.');
-      }
-    };
-  }, [receipt, selectedProduct, txId, account, userDetails, transactionComplete]);
-
   useEffect(() => {
     const productsRef = ref(database, 'products');
-    const listener = onValue(productsRef, (snapshot) => {
+    const unsubscribe = onValue(productsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const loadedProducts = Object.keys(data).map(key => ({
-          id: isNaN(Number(key)) ? key : Number(key),
-          name: data[key].name || '',
-          priceUSD: data[key].priceUSD || 0,
-          priceB3TR: data[key].priceB3TR || 0,
-          description: data[key].description || '',
-          soldOut: data[key].soldOut || false,
-        })).filter(p => p.name.trim());
-        setProducts(loadedProducts);
+        const loaded = Object.entries(data).map(([key, value]: [string, any]) => ({
+          id: key,
+          ...value,
+        }));
+        setProducts(loaded);
       } else {
         setProducts([]);
       }
     });
-    return () => off(productsRef, 'value', listener);
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -231,66 +177,7 @@ export default function StorePage() {
     init();
   }, []);
 
-  const handleAdminLogin = useCallback(async (e) => {
-    e?.preventDefault();
-    try {
-      await setPersistence(auth, browserLocalPersistence);
-      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
-      setShowLoginModal(false);
-      setError(null);
-    } catch (err) {
-      setError('Login failed.');
-    }
-  }, [loginEmail, loginPassword]);
-
-  const handleAdminLogout = useCallback(async () => {
-    if (window.confirm('Log out?')) {
-      await signOut(auth);
-      setShowManageForm(false);
-    }
-  }, []);
-
-  const handleFormSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    if (!formProduct.name.trim() || formProduct.priceUSD <= 0 || formProduct.priceB3TR <= 0) {
-      alert('Fill all fields.');
-      return;
-    }
-    try {
-      if (editProductId !== null) {
-        await update(ref(database, `products/${editProductId}`), formProduct);
-        setProducts(prev => prev.map(p => p.id === editProductId ? formProduct : p));
-        setEditProductId(null);
-      } else {
-        const newProductRef = push(ref(database, 'products'));
-        await set(newProductRef, { id: newProductRef.key || Date.now(), ...formProduct });
-        if (!window.confirm('Add another?')) setShowManageForm(false);
-        setFormProduct({ id: 0, name: '', priceUSD: 0, priceB3TR: 0, description: '', soldOut: false });
-      }
-      const snapshot = await get(ref(database, 'products'));
-      setProducts(Object.keys(snapshot.val() || {}).map(key => ({
-        id: isNaN(Number(key)) ? key : Number(key),
-        ...snapshot.val()[key],
-      })).filter(p => p.name.trim()));
-    } catch (err) {
-      alert(`Failed: ${err.message}`);
-    }
-  }, [formProduct, editProductId]);
-
-  const handleEditProduct = useCallback((product) => {
-    setEditProductId(product.id);
-    setFormProduct(product);
-    setShowManageForm(true);
-  }, []);
-
-  const handleDeleteProduct = useCallback(async (productId) => {
-    if (window.confirm('Delete?')) {
-      await remove(ref(database, `products/${productId}`));
-      setProducts(prev => prev.filter(p => p.id !== productId));
-    }
-  }, []);
-
-  const addToCart = useCallback((product) => {
+  const addToCart = useCallback((product: any) => {
     if (product.soldOut) return;
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
@@ -299,42 +186,13 @@ export default function StorePage() {
     });
   }, []);
 
-  const updateQuantity = useCallback((productId, delta) => {
-    setCart(prev => prev.map(item =>
-      item.id === productId ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
-    ).filter(item => item.quantity > 0));
-  }, []);
-
   const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.priceB3TR * item.quantity, 0), [cart]);
 
   const makePurchase = useCallback(() => {
     if (cart.length === 0) return;
     setSelectedProduct({ ...cart[0], priceB3TR: cartTotal });
-    handleB3TRPayment();
     setShowCartModal(false);
-  }, [cart, cartTotal, handleB3TRPayment]);
-
-  const handleB3TRPayment = useCallback(async () => {
-    if (!account) {
-      openWalletModal();
-      return;
-    }
-    if (!thor || !signer || !selectedProduct) return;
-    if (!userDetails.email || !userDetails.address.trim()) return;
-    if (Number(balanceData) < selectedProduct.priceB3TR) return;
-    try {
-      const clause = Clause.callFungible(
-        b3trContractAddress,
-        RECIPIENT_ADDRESS,
-        Units.parseUnits(selectedProduct.priceB3TR.toString(), b3trDecimals)
-      );
-      const tx = await signer.sendTransaction([clause]);
-      setTxId(tx.id);
-      setPaymentStatus(`Transaction sent: ${tx.id}`);
-    } catch (error) {
-      setPaymentStatus(`Error: ${error.message}`);
-    }
-  }, [account, thor, signer, selectedProduct, userDetails, balanceData]);
+  }, [cart, cartTotal]);
 
   return (
     <>
@@ -351,12 +209,6 @@ export default function StorePage() {
         <section className="flex-grow pt-16" style={{ backgroundImage: "url('/assets/SeaShell.png')", backgroundSize: 'cover' }}>
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-4xl text-amber-400 font-bold mb-8">Explore B3TR Rewards</h2>
-            <p className="text-xl mb-6">Redeem B3TR for merchandise.</p>
-            <p className="text-xl mb-4">
-              Wallet: {account ? 'Connected' : 'Not Connected'}
-              {!account && <WalletButton />}
-            </p>
-            {balanceData && <p className="text-xl mb-4">B3TR: {balanceData}</p>}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {products.map((product) => (
                 <div key={product.id} className="bg-custom-blue p-4 rounded-lg shadow text-center">
@@ -366,7 +218,7 @@ export default function StorePage() {
                     onClick={() => addToCart(product)}
                     className="bg-amber-400 text-green-500 px-4 py-2 rounded-lg mt-4"
                   >
-                    Add to Cart
+                    🛒 Add to Cart
                   </button>
                 </div>
               ))}
@@ -375,7 +227,7 @@ export default function StorePage() {
               onClick={() => setShowCartModal(true)}
               className="bg-amber-400 text-green-500 px-6 py-3 rounded-lg mt-6"
             >
-              Cart {cart.length > 0 && <span className="ml-2 bg-red-500 text-white rounded-full w-6 h-6">{cart.length}</span>}
+              🛒 Cart {cart.length > 0 && <span className="ml-2 bg-red-500 text-white rounded-full w-6 h-6">{cart.length}</span>}
             </button>
           </div>
         </section>
