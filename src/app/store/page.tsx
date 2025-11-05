@@ -1,18 +1,18 @@
 // @ts-nocheck
 "use client";
-// import Head from 'next/head'; // Removed, not used in App Router
+import Head from 'next/head';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useQuery, QueryObserverResult } from '@tanstack/react-query'; // Added QueryObserverResult
 import { WalletButton, useWallet, useThor, useWalletModal } from '@vechain/dapp-kit-react';
 import { Clause, Units, Address, ABIItem, ABIFunction, FixedPointNumber } from '@vechain/sdk-core';
 import { TransactionReceipt } from '@vechain/sdk-network';
 import emailjs from '@emailjs/browser';
-import PurchaseModal from '../../components/PurchaseModal'; // Corrected path
-import ThankYouPage from '../../components/ThankYouPage'; // Corrected path
-// import Link from 'next/link'; // Removed to fix build error
-import { RECIPIENT_ADDRESS } from '../config'; // Corrected path
-import { useBeats } from '../../../hooks/useBeats'; // Corrected path
-import { auth, database } from '../../../firebase'; // Corrected path
+import PurchaseModal from '@/components/PurchaseModal';
+import ThankYouPage from '@/components/ThankYouPage';
+import Link from 'next/link';
+import { RECIPIENT_ADDRESS } from '@/app/config';
+import { useBeats } from '@/hooks/useBeats';
+import { auth, database } from '@/firebase';
 import { ref, onValue, set, push, update, remove, off, get } from 'firebase/database';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app'; // Import FirebaseError
@@ -113,7 +113,7 @@ interface CartModalProps {
 
 function CartModal({ cart, onClose, onAdjustQuantity, onCheckout, cartTotal }: CartModalProps) {
   return (
-    // FIX: Darkened backdrop from bg-opacity-50 to bg-opacity-75
+    // FIX 1: Darkened backdrop
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <h3 className="text-2xl font-bold mb-4 text-center">Your Cart</h3>
@@ -177,7 +177,6 @@ function CartModal({ cart, onClose, onAdjustQuantity, onCheckout, cartTotal }: C
 
 
 export default function StorePage() {
-  // --- FIX: Added proper types to useState hooks ---
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [thankYouProduct, setThankYouProduct] = useState<Product | null>(null);
@@ -250,7 +249,7 @@ export default function StorePage() {
     queryFn: async () => {
       if (!account || !thor) return null;
       try {
-        // --- FIX: Restored 'owner' to the function signature ---
+        // --- FIX 2: Restored 'owner' to the function signature ---
         const result: any = await thor.contracts.executeCall(
           b3trContractAddress,
           ABIItem.ofSignature(ABIFunction, 'function balanceOf(address owner) view returns (uint256)'),
@@ -410,7 +409,7 @@ export default function StorePage() {
     };
   }, []);
 
-  // --- FIX: Re-added IntersectionObserver useEffect ---
+  // --- FIX 5: Re-added IntersectionObserver useEffect for fade-in ---
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -458,6 +457,7 @@ export default function StorePage() {
       return;
     }
 
+    // Ensure soldOut is a boolean
     const productData = {
         name: formProduct.name,
         priceUSD: formProduct.priceUSD,
@@ -629,7 +629,7 @@ export default function StorePage() {
 
   return (
     <>
-      {/* <Head><title>B3TR BEACH Store</title></Head> -- Removed */}
+      <Head><title>B3TR BEACH Store</title></Head>
       <div className="flex flex-col min-h-screen">
         <header className="py-48 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/assets/AltBEACHBanner.png')", backgroundSize: '1900px 700px' }}>
           <div className="container mx-auto px-4 text-center">
@@ -658,9 +658,10 @@ export default function StorePage() {
                 )}
               </p>
               {!account && <WalletButton />}
-              {balanceData && <p className="text-xl mb-4">B3TR: {balanceData}</p>}
-              {vthoData && <p className="text-xl mb-4">VTHO: {vthoData}</p>}
-              {/* --- FIX: Show balance loading/error states --- */}
+              
+              {/* FIX 2: Added back balance display logic */}
+              {account && balanceData && <p className="text-xl mb-4">B3TR: {balanceData}</p>}
+              {account && vthoData && <p className="text-xl mb-4">VTHO: {vthoData}</p>}
               {account && !balanceData && !balanceError && <p className="text-xl mb-4 text-yellow-500">Loading B3TR Balance...</p>}
               {balanceError && <p className="text-xl mb-4 text-red-500">B3TR Balance Error</p>}
               
@@ -684,13 +685,12 @@ export default function StorePage() {
                   </div>
                 )) : <p className="text-xl">Loading products...</p>}
               </div>
-              {/* FIX: Replaced Link with <a> tag */}
-              <a
+              <Link
                 href="/"
                 className="bg-amber-400 text-green-500 text-2xl font-bold px-4 py-2 rounded-lg mt-4 mb-12 inline-block"
               >
                 Back to Homepage
-              </a>
+              </Link>
             </div>
           </div>
         </section>
@@ -701,13 +701,13 @@ export default function StorePage() {
                 © {new Date().getFullYear()} <span className="text-black">B3TR</span> BEACH. All rights reserved.
               </p>
               <div className="flex justify-center space-x-6">
-                {/* FIX: Replaced Link with <a> tags and buttons */}
-                <a href="#" className="text-white hover:text-green-500">Privacy Policy</a>
-                <a href="#" className="text-white hover:text-green-500">Terms of Service</a>
-                <button className="text-white hover:text-green-500 bg-transparent border-none p-0" onClick={handleManageProductsClick}>Manage Products</button>
-                <button className="text-white hover:text-green-500 bg-transparent border-none p-0" onClick={handleViewTxClick}>View Tx</button>
-                <a href="mailto:support@b3trbeach.org" className="text-white hover:text-green-500">Contact Us</a>
-                <button className="text-white hover:text-green-500 bg-transparent border-none p-0" onClick={() => isAdminLoggedIn ? handleAdminLogout() : setShowLoginModal(true)}>Admin</button>
+                <Link href="#" className="text-white hover:text-green-500">Privacy Policy</Link>
+                <Link href="#" className="text-white hover:text-green-500">Terms of Service</Link>
+                {/* FIX 4: Changed Links to buttons for admin actions */}
+                <button className="text-white hover:text-green-500 bg-transparent border-none p-0 cursor-pointer" onClick={handleManageProductsClick}>Manage Products</button>
+                <button className="text-white hover:text-green-500 bg-transparent border-none p-0 cursor-pointer" onClick={handleViewTxClick}>View Tx</button>
+                <Link href="mailto:support@b3trbeach.org" className="text-white hover:text-green-500">Contact Us</Link>
+                <button className="text-white hover:text-green-500 bg-transparent border-none p-0 cursor-pointer" onClick={() => isAdminLoggedIn ? handleAdminLogout() : setShowLoginModal(true)}>Admin</button>
               </div>
             </div>
           </div>
@@ -728,7 +728,7 @@ export default function StorePage() {
 
         {/* Login Modal */}
         {showLoginModal && (
-          // FIX: Darkened backdrop
+          // FIX 1: Darkened backdrop
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
               <h3 className="text-2xl font-bold mb-4">Admin Login</h3>
@@ -757,7 +757,7 @@ export default function StorePage() {
           </div>
         )}
 
-        {/* --- FIX: Restored original Manage Products Modals --- */}
+        {/* --- FIX 3: Restored original Manage Products Modals --- */}
         {/* Manage Products Modal (Add) */}
         {isAdminLoggedIn && showManageForm && !editProductId && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
@@ -974,6 +974,7 @@ export default function StorePage() {
         
         {/* Thank You Modal */}
         {showThankYou && (
+          // FIX 1: Darkened backdrop
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-3/4 text-center overflow-auto">
               <ThankYouPage
@@ -1012,7 +1013,7 @@ export default function StorePage() {
 
       </div>
       
-      {/* --- FIX: Added global style for fade-in --- */}
+      {/* --- FIX 5: Added global style for fade-in --- */}
       <style jsx global>{`
         .fade-content {
           opacity: 0;
