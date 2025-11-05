@@ -1,4 +1,4 @@
-// @ts-nocheck
+// src/app/store/page.tsx
 "use client";
 import Head from 'next/head';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -15,6 +15,9 @@ import { useBeats } from '@/hooks/useBeats';
 import { auth, database } from '@/firebase';
 import { ref, onValue, set, push, update, remove, off, get } from 'firebase/database';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from 'firebase/auth';
+
+// @ts-nocheck — Disable TypeScript to avoid Turbopack errors
+// @ts-nocheck
 
 export default function StorePage() {
   const [products, setProducts] = useState([]);
@@ -190,13 +193,53 @@ export default function StorePage() {
     });
   }, []);
 
+  const updateQuantity = useCallback((productId, delta) => {
+    setCart(prev => prev.map(item =>
+      item.id === productId ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
+    ).filter(item => item.quantity > 0));
+  }, []);
+
   const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.priceB3TR * item.quantity, 0), [cart]);
 
   const makePurchase = useCallback(() => {
     if (cart.length === 0) return;
-    setSelectedProduct({ ...cart[0], priceB3TR: cartTotal });
+    const total = cartTotal;
+    setSelectedProduct({ ...cart[0], priceB3TR: total });
     setShowCartModal(false);
   }, [cart, cartTotal]);
+
+  const handleB3TRPayment = useCallback(async () => {
+    if (!account) {
+      openWalletModal();
+      return;
+    }
+    if (!thor || !signer || !selectedProduct) return;
+    if (!userDetails.email || !userDetails.address.trim()) return;
+    if (Number(balanceData) < selectedProduct.priceB3TR) return;
+    try {
+      const clause = Clause.callFungible(
+        b3trContractAddress,
+        RECIPIENT_ADDRESS,
+        Units.parseUnits(selectedProduct.priceB3TR.toString(), b3trDecimals)
+      );
+      const tx = await signer.sendTransaction([clause]);
+      setTxId(tx.id);
+      setPaymentStatus(`Transaction sent: ${tx.id}`);
+    } catch (error) {
+      setPaymentStatus(`Error: ${error.message}`);
+    }
+  }, [account, thor, signer, selectedProduct, userDetails, balanceData]);
+
+  const handlePurchase = useCallback((product) => {
+    if (!product.soldOut) {
+      setSelectedProduct(product);
+      setUserDetails({ name: '', email: '', address: '' });
+      setShowThankYou(false);
+      setTransactionComplete(false);
+    } else {
+      alert('Sold out!');
+    }
+  }, []);
 
   return (
     <>
@@ -204,37 +247,84 @@ export default function StorePage() {
       <div className="flex flex-col min-h-screen">
         <header className="py-48 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/assets/AltBEACHBanner.png')", backgroundSize: '1900px 700px' }}>
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-6xl font-bold text-white">
-              <span className="text-custom-blue">B3TR</span>
-              <span className="text-amber-400"> BEACH Store</span>
-            </h1>
+            <div className="fade-content">
+              <h1 className="text-6xl font-bold mb-4 text-outline-black text-white">
+                <span className="text-custom-blue">B3TR</span>
+                <span className="text-amber-400"> BEACH Store</span>
+              </h1>
+            </div>
           </div>
         </header>
-        <section className="flex-grow pt-16" style={{ backgroundImage: "url('/assets/SeaShell.png')", backgroundSize: 'cover' }}>
+        <section className="flex-grow wave-top wave-bottom min-h-[70vh] pt-16" style={{ backgroundImage: "url('/assets/SeaShell.png')", backgroundSize: 'cover' }}>
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl text-amber-400 font-bold mb-8">Explore B3TR Rewards</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <div key={product.id} className="bg-custom-blue p-4 rounded-lg shadow text-center">
-                  <p className="text-2xl font-bold text-white">{product.name}</p>
-                  <p className="text-xl text-white">{product.priceB3TR} B3TR</p>
-                  <button
-                    onClick={() => addToCart(product)}
-                    className="bg-amber-400 text-green-500 px-4 py-2 rounded-lg mt-4"
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              ))}
+            <div className="fade-content">
+              <h2 className="text-4xl text-amber-400 font-bold mb-8 text-outline-black">
+                Explore B3TR Rewards
+              </h2>
+              <p className="text-xl mb-6 text-outline-amber">
+                Redeem B3TR Tokens for exclusive B3TR BEACH merchandise.
+              </p>
+              <p className="text-xl mb-4 text-outline-amber">
+                Wallet Status: {account ? (
+                  <span className="text-green-500 text-outline-black">Connected <button onClick={disconnect} className="ml-2 bg-red-500 text-white px-2 py-1 rounded">Disconnect</button></span>
+                ) : (
+                  <span className="text-red-500">Not Connected</span>
+                )}
+              </p>
+              {!account && <WalletButton />}
+              {balanceData && <p className="text-xl mb-4">B3TR: {balanceData}</p>}
+              {vthoData && <p className="text-xl mb-4">VTHO: {vthoData}</p>}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {products.map((product) => (
+                  <div key={product.id} className="bg-custom-blue p-4 rounded-lg shadow text-center">
+                    <p className="text-2xl font-bold text-white">
+                      {product.name.split(' ').map((word, i) =>
+                        word === 'BEACH' ? <span key={i} className="text-amber-400">{word}</span> : word + ' '
+                      )}
+                    </p>
+                    <p className="text-xl text-white">{product.priceB3TR} B3TR</p>
+                    <p className="text-xl text-white">{product.description}</p>
+                    <button
+                      onClick={() => addToCart(product)}
+                      className="bg-amber-400 text-green-500 px-4 py-2 rounded-lg mt-4"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => setShowCartModal(true)}
+                className="bg-amber-400 text-green-500 px-6 py-3 rounded-lg mt-6"
+              >
+                Cart {cart.length > 0 && <span className="ml-2 bg-red-500 text-white rounded-full w-6 h-6">{cart.length}</span>}
+              </button>
+              <Link
+                href="/"
+                className="bg-amber-400 text-green-500 text-2xl font-bold px-4 py-2 rounded-lg mt-4 mb-12 inline-block"
+              >
+                Back to Homepage
+              </Link>
             </div>
-            <button
-              onClick={() => setShowCartModal(true)}
-              className="bg-amber-400 text-green-500 px-6 py-3 rounded-lg mt-6"
-            >
-              Cart {cart.length > 0 && <span className="ml-2 bg-red-500 text-white rounded-full w-6 h-6">{cart.length}</span>}
-            </button>
           </div>
         </section>
+        <footer className="bg-custom-blue py-9 text-center wave-top">
+          <div className="container mx-auto px-4">
+            <div className="fade-content">
+              <p className="text-xl text-amber-400 text-outline-blue mb-4">
+                © {new Date().getFullYear()} <span className="text-black">B3TR</span> BEACH. All rights reserved.
+              </p>
+              <div className="flex justify-center space-x-6">
+                <Link href="#" className="text-white hover:text-green-500">Privacy Policy</Link>
+                <Link href="#" className="text-white hover:text-green-500">Terms of Service</Link>
+                <Link href="#" className="text-white hover:text-green-500" onClick={() => isAdminLoggedIn && setShowManageForm(true)}>Manage Products</Link>
+                <Link href="#" className="text-white hover:text-green-500" onClick={() => isAdminLoggedIn && (window.location.href = '/transactions')}>View Tx</Link>
+                <Link href="mailto:support@b3trbeach.org" className="text-white hover:text-green-500">Contact Us</Link>
+                <Link href="#" className="text-white hover:text-green-500" onClick={() => isAdminLoggedIn ? handleAdminLogout() : setShowLoginModal(true)}>Admin</Link>
+              </div>
+            </div>
+          </div>
+        </footer>
         {showCartModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg max-w-md w-full">
@@ -260,6 +350,23 @@ export default function StorePage() {
               </button>
             </div>
           </div>
+        )}
+        {selectedProduct && !showThankYou && (
+          <PurchaseModal
+            selectedProduct={selectedProduct}
+            userDetails={userDetails}
+            setUserDetails={setUserDetails}
+            paymentStatus={paymentStatus}
+            account={account}
+            formRef={formRef}
+            handleB3TRPayment={handleB3TRPayment}
+            openWalletModal={openWalletModal}
+            closeModal={() => {
+              setPaymentStatus('');
+              setUserDetails({ name: '', email: '', address: '' });
+              setSelectedProduct(null);
+            }}
+          />
         )}
       </div>
     </>
