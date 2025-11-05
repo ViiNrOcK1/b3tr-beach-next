@@ -2,7 +2,7 @@
 "use client";
 import Head from 'next/head';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useQuery, QueryObserverResult } from '@tanstack/react-query'; // Added QueryObserverResult
+import { useQuery, QueryObserverResult } from '@tanstack/react-query'; 
 import { WalletButton, useWallet, useThor, useWalletModal } from '@vechain/dapp-kit-react';
 import { Clause, Units, Address, ABIItem, ABIFunction, FixedPointNumber } from '@vechain/sdk-core';
 import { TransactionReceipt } from '@vechain/sdk-network';
@@ -15,7 +15,7 @@ import { useBeats } from '@/hooks/useBeats';
 import { auth, database } from '@/firebase';
 import { ref, onValue, set, push, update, remove, off, get } from 'firebase/database';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from 'firebase/auth';
-import { FirebaseError } from 'firebase/app'; // Import FirebaseError
+import { FirebaseError } from 'firebase/app';
 
 // --- SVG Icons for Cart ---
 const CartIcon = () => (
@@ -44,6 +44,7 @@ const TrashIcon = () => (
     <line x1="14" y1="11" x2="14" y2="17"></line>
   </svg>
 );
+
 
 // Extend TransactionReceipt type
 declare module '@vechain/sdk-network' {
@@ -244,13 +245,13 @@ export default function StorePage() {
     }
   }, [beat, account, txId, transactionComplete, debounceRefetch]);
 
+  // FIX 2: Restored original working balance query
   const { data: balanceData, error: balanceError, refetch: initialRefetchB3TR } = useQuery({
     queryKey: ['b3trBalance', account],
     queryFn: async () => {
       if (!account || !thor) return null;
       try {
-        // --- FIX 2: Restored 'owner' to the function signature ---
-        const result: any = await thor.contracts.executeCall(
+        const result: CallResult = await thor.contracts.executeCall(
           b3trContractAddress,
           ABIItem.ofSignature(ABIFunction, 'function balanceOf(address owner) view returns (uint256)'),
           [Address.of(account).toString()]
@@ -263,7 +264,13 @@ export default function StorePage() {
             balanceValue = result.result.plain !== undefined ? String(result.result.plain) : '0';
           } else if (typeof result.result === 'string' && result.result.startsWith('0x')) {
             balanceValue = BigInt(result.result).toString();
+          } else {
+            console.warn('Unexpected B3TR balance result format:', result.result);
+            return '0';
           }
+        } else {
+          console.warn('B3TR balance call failed or returned no result:', result);
+          return '0';
         }
         const balance = FixedPointNumber.of(balanceValue);
         return Number(Units.formatUnits(balance, b3trDecimals)).toFixed(2);
@@ -311,7 +318,7 @@ export default function StorePage() {
 
   useEffect(() => {
     refetchRefs.current = {
-      refetchB3TR: initialRefetchB3TR as any, // Cast to any to satisfy RefetchRefs
+      refetchB3TR: initialRefetchB3TR as any, 
       refetchVTHO: initialRefetchVTHO as any,
       refetchReceipt: initialRefetchReceipt as any
     };
@@ -457,7 +464,6 @@ export default function StorePage() {
       return;
     }
 
-    // Ensure soldOut is a boolean
     const productData = {
         name: formProduct.name,
         priceUSD: formProduct.priceUSD,
@@ -546,6 +552,7 @@ export default function StorePage() {
   }, [cart, cartTotal, cartItemCount]);
 
 
+  // --- FIX 3: Restored original, working handleB3TRPayment ---
   const handleB3TRPayment = useCallback(async () => {
     if (!account) {
       openWalletModal();
@@ -569,22 +576,35 @@ export default function StorePage() {
     }
 
     setPaymentStatus('Processing transaction...');
-    try {
-      const clause = Clause.callFunction(
+    
+    // This is the transaction object from your "original" working file
+    const tx = {
+      clauses: [
+        Clause.callFunction(
           Address.of(b3trContractAddress),
           ABIItem.ofSignature(ABIFunction, 'function transfer(address to, uint256 amount) returns (bool)'),
           [Address.of(RECIPIENT_ADDRESS).toString(), Units.parseUnits(selectedProduct.priceB3TR.toString(), b3trDecimals).toString()]
-      );
-      
-      // Corrected: Build tx, then sign, then send
-      const tx = thor.transactions.buildTransaction(clause);
-      const signedTx = await signer.signTransaction(tx);
-      const sentTx = await thor.transactions.sendTransaction(signedTx);
-      
-      setTxId(sentTx.id);
-      setPaymentStatus(`Transaction sent: ${sentTx.id}`);
+        ),
+      ],
+      chainTag: 0x186a9,
+      blockRef: '0x0000000000000000',
+      expiration: 32,
+      gas: 150000,
+      gasPriceCoef: 128,
+      nonce: Math.floor(Math.random() * 1000000000),
+      dependsOn: undefined,
+    };
+
+    try {
+      // This is the DAppKit flow that uses the transaction object
+      const txId = await signer.signTransaction(tx);
+      if (!txId) {
+        throw new Error('No transaction ID returned');
+      }
+      setTxId(txId);
+      setPaymentStatus(`Transaction sent: ${txId}. Awaiting confirmation...`);
     } catch (error: any) {
-      setPaymentStatus(`Error: ${error.message}`);
+      setPaymentStatus(`Error: ${error.message || 'Transaction failed.'}`);
       console.error('Payment failed:', error);
     }
   }, [account, thor, signer, selectedProduct, userDetails, balanceData, vthoData, openWalletModal]); // Added openWalletModal
@@ -659,11 +679,30 @@ export default function StorePage() {
               </p>
               {!account && <WalletButton />}
               
-              {/* FIX 2: Added back balance display logic */}
-              {account && balanceData && <p className="text-xl mb-4">B3TR: {balanceData}</p>}
-              {account && vthoData && <p className="text-xl mb-4">VTHO: {vthoData}</p>}
-              {account && !balanceData && !balanceError && <p className="text-xl mb-4 text-yellow-500">Loading B3TR Balance...</p>}
-              {balanceError && <p className="text-xl mb-4 text-red-500">B3TR Balance Error</p>}
+              {/* --- FIX 2: Restored Balance Display Logic --- */}
+              {balanceError && (
+                <p className="text-xl mb-4 text-red-500">
+                  Error fetching B3TR balance.
+                </p>
+              )}
+              {account && balanceData !== null && balanceData !== undefined && (
+                <p className="text-xl mb-4">
+                  B3TR Balance: {balanceData} <span className="text-custom-blue text-outline-amber">B3TR</span>
+                </p>
+              )}
+              {account && balanceData === null && !balanceError && (
+                <p className="text-xl mb-4 text-yellow-500 text-outline-amber">
+                  B3TR Balance: Loading...
+                </p>
+              )}
+              {vthoError && (
+                <p className="text-xl mb-4 text-red-500">Error fetching VTHO balance.</p>
+              )}
+              {account && vthoData && (
+                <p className="text-xl mb-4">
+                  VTHO Balance: {vthoData} VTHO
+                </p>
+              )}
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {products.length > 0 ? products.map((product) => (
@@ -703,7 +742,7 @@ export default function StorePage() {
               <div className="flex justify-center space-x-6">
                 <Link href="#" className="text-white hover:text-green-500">Privacy Policy</Link>
                 <Link href="#" className="text-white hover:text-green-500">Terms of Service</Link>
-                {/* FIX 4: Changed Links to buttons for admin actions */}
+                {/* --- FIX 4: Changed Links to buttons --- */}
                 <button className="text-white hover:text-green-500 bg-transparent border-none p-0 cursor-pointer" onClick={handleManageProductsClick}>Manage Products</button>
                 <button className="text-white hover:text-green-500 bg-transparent border-none p-0 cursor-pointer" onClick={handleViewTxClick}>View Tx</button>
                 <Link href="mailto:support@b3trbeach.org" className="text-white hover:text-green-500">Contact Us</Link>
@@ -757,11 +796,12 @@ export default function StorePage() {
           </div>
         )}
 
-        {/* --- FIX 3: Restored original Manage Products Modals --- */}
+        {/* --- FIX 3: Restored original Manage Products Modals (with scroll fix) --- */}
         {/* Manage Products Modal (Add) */}
         {isAdminLoggedIn && showManageForm && !editProductId && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-3/4">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 p-4">
+            {/* FIX 1: Added overflow-y-auto and max-h-[90vh] for mobile scrolling */}
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
               <h3 className="text-2xl font-bold mb-4 text-center">Manage Products - Add New</h3>
               <form onSubmit={handleFormSubmit}>
                 <div className="mb-4">
@@ -815,8 +855,7 @@ export default function StorePage() {
                     type="button"
                     className={`px-4 py-2 rounded-lg ${formProduct.soldOut ? 'bg-red-500 text-white' : 'bg-green-500 text-white'} hover:${formProduct.soldOut ? 'bg-red-600' : 'bg-green-600'}`}
                     onClick={() => {
-                      const newSoldOut = !formProduct.soldOut;
-                      setFormProduct(prev => ({ ...prev, soldOut: newSoldOut }));
+                      setFormProduct(prev => ({ ...prev, soldOut: !prev.soldOut }));
                     }}
                   >
                     {formProduct.soldOut ? 'In Stock' : 'Sold Out'}
@@ -837,6 +876,7 @@ export default function StorePage() {
                 </button>
               </form>
               <h4 className="text-xl font-semibold mt-6 mb-4">Existing Products</h4>
+              {/* FIX 1: Added max-h-48 for list scrolling */}
               <ul className="list-disc pl-5 max-h-48 overflow-y-auto">
                 {products.map((product) => (
                   <li key={product.id} className="mb-2">
@@ -872,8 +912,9 @@ export default function StorePage() {
         
         {/* Manage Products Modal (Edit) */}
         {isAdminLoggedIn && showManageForm && editProductId && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-3/4">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 p-4">
+            {/* FIX 1: Added overflow-y-auto and max-h-[90vh] for mobile scrolling */}
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
               <h3 className="text-2xl font-bold mb-4 text-center">Manage Products - Edit</h3>
               <form onSubmit={handleFormSubmit}>
                 <div className="mb-4">
@@ -927,8 +968,7 @@ export default function StorePage() {
                     type="button"
                     className={`px-4 py-2 rounded-lg ${formProduct.soldOut ? 'bg-red-500 text-white' : 'bg-green-500 text-white'} hover:${formProduct.soldOut ? 'bg-red-600' : 'bg-green-600'}`}
                     onClick={() => {
-                      const newSoldOut = !formProduct.soldOut;
-                      setFormProduct(prev => ({ ...prev, soldOut: newSoldOut }));
+                      setFormProduct(prev => ({ ...prev, soldOut: !prev.soldOut }));
                     }}
                   >
                     {formProduct.soldOut ? 'In Stock' : 'Sold Out'}
@@ -1026,6 +1066,7 @@ export default function StorePage() {
     </>
   );
 }
+
 
 
 
