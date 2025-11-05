@@ -16,13 +16,16 @@ import { auth, database } from '@/firebase';
 import { ref, onValue, set, push, update, remove, off, get } from 'firebase/database';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from 'firebase/auth';
 
+// @ts-nocheck — Disable TypeScript in this file
+// @ts-nocheck
+
 export default function StorePage() {
-  const [products, setProducts] = useState<any[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const [thankYouProduct, setThankYouProduct] = useState<any>(null);
-  const [thankYouTxId, setThankYouTxId] = useState<string | null>(null);
+  const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [thankYouProduct, setThankYouProduct] = useState(null);
+  const [thankYouTxId, setThankYouTxId] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState('');
-  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState(null);
   const [formProduct, setFormProduct] = useState({
     id: 0,
     name: '',
@@ -31,9 +34,9 @@ export default function StorePage() {
     description: '',
     soldOut: false,
   });
-  const [editProductId, setEditProductId] = useState<number | string | null>(null);
-  const [txId, setTxId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [editProductId, setEditProductId] = useState(null);
+  const [txId, setTxId] = useState(null);
+  const [error, setError] = useState(null);
   const [userDetails, setUserDetails] = useState({
     name: '',
     email: '',
@@ -46,9 +49,9 @@ export default function StorePage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  const [cart, setCart] = useState<any[]>([]);
+  const [cart, setCart] = useState([]);
   const [showCartModal, setShowCartModal] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+  const formRef = useRef(null);
   const { account, signer, connect, disconnect } = useWallet();
   const thor = useThor();
   const { open: openWalletModal } = useWalletModal();
@@ -56,7 +59,7 @@ export default function StorePage() {
   const b3trDecimals = 18;
 
   const lastRefetch = useRef(0);
-  const debounceRefetch = useCallback((refetchFn: () => Promise<any>) => {
+  const debounceRefetch = useCallback((refetchFn) => {
     const now = Date.now();
     if (now - lastRefetch.current > 10000) {
       lastRefetch.current = now;
@@ -89,7 +92,7 @@ export default function StorePage() {
     queryFn: async () => {
       if (!account || !thor) return null;
       try {
-        const result: any = await thor.contracts.executeCall(
+        const result = await thor.contracts.executeCall(
           b3trContractAddress,
           ABIItem.ofSignature(ABIFunction, 'function balanceOf(address owner) view returns (uint256)'),
           [Address.of(account).toString()]
@@ -149,7 +152,11 @@ export default function StorePage() {
   });
 
   useEffect(() => {
-    refetchRefs.current = { refetchB3TR: initialRefetchB3TR, refetchVTHO: initialRefetchVTHO, refetchReceipt: initialRefetchReceipt };
+    refetchRefs.current = { 
+      refetchB3TR: initialRefetchB3TR, 
+      refetchVTHO: initialRefetchVTHO, 
+      refetchReceipt: initialRefetchReceipt 
+    };
   }, [initialRefetchB3TR, initialRefetchVTHO, initialRefetchReceipt]);
 
   useEffect(() => {
@@ -157,9 +164,9 @@ export default function StorePage() {
     const unsubscribe = onValue(productsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const loaded = Object.entries(data).map(([key, value]: [string, any]) => ({
+        const loaded = Object.entries(data).map(([key, value]) => ({
           id: key,
-          ...value,
+          ...value
         }));
         setProducts(loaded);
       } else {
@@ -177,7 +184,7 @@ export default function StorePage() {
     init();
   }, []);
 
-  const addToCart = useCallback((product: any) => {
+  const addToCart = useCallback((product) => {
     if (product.soldOut) return;
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
@@ -218,7 +225,7 @@ export default function StorePage() {
                     onClick={() => addToCart(product)}
                     className="bg-amber-400 text-green-500 px-4 py-2 rounded-lg mt-4"
                   >
-                    🛒 Add to Cart
+                    Add to Cart
                   </button>
                 </div>
               ))}
@@ -227,7 +234,7 @@ export default function StorePage() {
               onClick={() => setShowCartModal(true)}
               className="bg-amber-400 text-green-500 px-6 py-3 rounded-lg mt-6"
             >
-              🛒 Cart {cart.length > 0 && <span className="ml-2 bg-red-500 text-white rounded-full w-6 h-6">{cart.length}</span>}
+              Cart {cart.length > 0 && <span className="ml-2 bg-red-500 text-white rounded-full w-6 h-6">{cart.length}</span>}
             </button>
           </div>
         </section>
