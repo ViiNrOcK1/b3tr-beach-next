@@ -17,12 +17,6 @@ import { ref, onValue, set, push, update, remove, off, get } from 'firebase/data
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 
-// Extend TransactionReceipt type
-declare module '@vechain/sdk-network' {
-  interface TransactionReceipt {
-    transferSuccess?: boolean;
-  }
-}
 
 // Custom type for executeCall result
 interface CallResult {
