@@ -194,6 +194,12 @@ export default function StorePage() {
     });
   }, []);
 
+  const updateQuantity = useCallback((productId, delta) => {
+    setCart(prev => prev.map(item =>
+      item.id === productId ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
+    ).filter(item => item.quantity > 0));
+  }, []);
+
   const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.priceB3TR * item.quantity, 0), [cart]);
 
   const makePurchase = useCallback(() => {
