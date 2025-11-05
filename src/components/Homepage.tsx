@@ -72,6 +72,7 @@ function Header() {
           loop
           muted
           playsInline
+    preload="auto"
           className="header-video" // This class is now targeted by the *global* style below
         >
           <source src="/assets/NewB3TRBEACHBannerGif.mp4" type="video/mp4" />
