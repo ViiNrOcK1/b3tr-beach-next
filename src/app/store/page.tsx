@@ -1,3 +1,4 @@
+<DOCUMENT filename="page.tsx">
 "use client"; // Required for useState, useEffect, and client-side interactivity
 import Head from 'next/head';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -62,6 +63,10 @@ interface Purchase {
   userAddress: string;
 }
 
+interface CartItem extends Product {
+  quantity: number;
+}
+
 interface RefetchRefs {
   refetchB3TR: () => Promise<QueryObserverResult<string | null, Error>>;
   refetchVTHO: () => Promise<QueryObserverResult<string | null, Error>>;
@@ -102,14 +107,18 @@ export default function StorePage() {
   const { account, signer, connect, disconnect } = useWallet();
   const thor = useThor();
   const { open: openWalletModal } = useWalletModal();
-  const b3trContractAddress = '0x5ef79995FE8a89e0812330E4378eB2660ceDe699';
+  const b3trContractAddress = '0x5ef79995FE8a089e0812330E4378eB2660ceDe699';
   const b3trDecimals = 18;
+
+  // Cart state
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [showCartModal, setShowCartModal] = useState(false);
 
   // Debounce refetch to prevent rapid calls
   const lastRefetch = useRef<number>(0);
   const debounceRefetch = useCallback((refetchFn: () => Promise<any>) => {
     const now = Date.now();
-    if (now - lastRefetch.current > 10000) { // 10-second debounce
+    if (now - lastRefetch.current > 10000) {
       lastRefetch.current = now;
       console.log('Executing refetch');
       return refetchFn();
@@ -190,7 +199,7 @@ export default function StorePage() {
       }
     },
     enabled: !!account && !!thor,
-    refetchInterval: false, // Disable automatic refetching
+    refetchInterval: false,
   });
 
   // Fetch VTHO balance only on wallet connection or transaction
@@ -209,7 +218,7 @@ export default function StorePage() {
       }
     },
     enabled: !!account && !!thor,
-    refetchInterval: false, // Disable automatic refetching
+    refetchInterval: false,
   });
 
   // Track transaction status
@@ -237,43 +246,22 @@ export default function StorePage() {
     refetchRefs.current = { refetchB3TR: initialRefetchB3TR, refetchVTHO: initialRefetchVTHO, refetchReceipt: initialRefetchReceipt };
   }, [initialRefetchB3TR, initialRefetchVTHO, initialRefetchReceipt]);
 
-  // Ensure ThankYouPage modal persists
-  useEffect(() => {
-    if (showThankYou) {
-      console.log('ThankYouPage modal opened, setting minimum display timeout');
-      const timer = setTimeout(() => {
-        console.log('ThankYouPage minimum display timeout completed');
-      }, 30000); // 30-second minimum display
-      return () => clearTimeout(timer);
-    }
-  }, [showThankYou]);
-
   // Handle transaction receipt updates with error boundary
   const handleTransactionUpdate = useMemo(() => {
     return () => {
       console.log('handleTransactionUpdate triggered with receipt:', receipt, 'txId:', txId, 'selectedProduct:', selectedProduct, 'transactionComplete:', transactionComplete, 'showThankYou:', showThankYou);
-      if (transactionComplete) {
-        console.log('Transaction already complete, skipping update');
-        return;
-      }
-      if (!receipt || !selectedProduct || !txId || !account) {
-        console.log('handleTransactionUpdate condition not met:', { receipt, selectedProduct, txId, account });
-        return;
-      }
+      if (transactionComplete) return;
+      if (!receipt || !selectedProduct || !txId || !account) return;
       try {
         const status = receipt.reverted ? 'reverted' : 'success';
         console.log('Transaction update status:', status);
         if (status === 'success') {
-          console.log('Transaction successful, setting ThankYouPage states');
-          // Set ThankYouPage states
           setThankYouTxId(txId);
-          setThankYouProduct({ ...selectedProduct });
+          setThankYouProduct(selectedProduct);
           setShowThankYou(true);
           setTransactionComplete(true);
           setPaymentStatus('Transaction completed successfully!');
 
-          // Save to Firebase and send email
-          console.log('Saving purchase and sending email');
           const newPurchase: Purchase = {
             item: selectedProduct.name,
             amount: selectedProduct.priceB3TR,
@@ -287,8 +275,6 @@ export default function StorePage() {
           const purchasesRef = ref(database, 'purchases');
           push(purchasesRef, newPurchase)
             .then(() => {
-              console.log('Purchase recorded in Firebase');
-              // Send email with template-compatible fields
               const emailPayload = {
                 from_name: userDetails.name,
                 to_name: userDetails.name,
@@ -303,48 +289,28 @@ export default function StorePage() {
                 shipping: 'Free',
                 timestamp: new Date().toISOString(),
               };
-              console.log('Attempting to send EmailJS confirmation with payload:', emailPayload);
-              try {
-                emailjs
-                  .send('B3TRBEACH', 'B3TRConfirm', emailPayload, '-yJ3RZmkCyvjwXcnb')
-                  .then((response) => {
-                    console.log('Confirmation email sent:', response.status, response.text);
-                    setEmailError(null);
-                  })
-                  .catch((err) => {
-                    console.error('Email send error:', err, 'Error details:', err.text || err.message);
-                    setEmailError(err.text || err.message || 'Failed to send confirmation email.');
-                    setPaymentStatus('Transaction completed, but failed to send confirmation email. Please contact support.');
-                  });
-              } catch (err) {
-                console.error('EmailJS send failed with uncaught error:', err);
-                setEmailError('Uncaught error sending email.');
-                setPaymentStatus('Transaction completed, but failed to send confirmation email. Please contact support.');
-              }
+              emailjs.send('B3TRBEACH', 'B3TRConfirm', emailPayload, '-yJ3RZmkCyvjwXcnb')
+                .then(() => setEmailError(null))
+                .catch((err) => {
+                  console.error('Email send error:', err);
+                  setEmailError(err.text || 'Failed to send confirmation email.');
+                  setPaymentStatus('Transaction completed, but email failed. Contact support.');
+                });
             })
-            .catch(err => {
+            .catch((err) => {
               console.error('Firebase save error:', err);
-              setPaymentStatus('Transaction completed, but failed to record purchase. Contact support.');
+              setPaymentStatus('Transaction completed, but save failed. Contact support.');
             });
 
-          // Refetch balance after transaction
-          console.log('Refetching balance post-transaction');
           debounceRefetch(refetchRefs.current.refetchB3TR).then((result) => {
             const newBalance = result.data || '0';
             const balanceDifference = Number(balanceData || '0') - Number(newBalance);
-            console.log('Balance check:', { balanceDifference, required: selectedProduct.priceB3TR, newBalance, previousBalance: balanceData });
             if (balanceDifference < selectedProduct.priceB3TR) {
-              console.error('Insufficient balance difference:', { balanceDifference, required: selectedProduct.priceB3TR });
-              setPaymentStatus('Error: Insufficient balance change detected.');
-              // Do not reset critical states
+              console.error('Insufficient balance change:', balanceDifference, selectedProduct.priceB3TR);
+              setPaymentStatus('Error: Balance mismatch.');
             }
-          }).catch(err => {
-            console.error('Balance refetch error:', err);
-            setPaymentStatus('Error checking balance. Transaction completed, but verification failed.');
-            // Do not reset critical states
-          });
+          }).catch((err) => console.error('Balance refetch error:', err));
         } else if (status === 'reverted') {
-          console.log('Transaction reverted');
           setPaymentStatus('Payment failed: Transaction reverted.');
           setTransactionComplete(false);
           setShowThankYou(false);
@@ -355,64 +321,41 @@ export default function StorePage() {
         }
       } catch (err) {
         console.error('Error in handleTransactionUpdate:', err);
-        setPaymentStatus('Error processing transaction. Please try again.');
-        // Do not reset critical states
+        setPaymentStatus('Error processing transaction.');
       }
     };
   }, [receipt, selectedProduct, txId, account, balanceData, userDetails, transactionComplete, debounceRefetch]);
 
-  // Load products from Firebase with real-time updates
+  // Load products from Firebase
   useEffect(() => {
-    console.log('Setting up Firebase products listener');
     const productsRef = ref(database, 'products');
     const listener = onValue(productsRef, (snapshot) => {
-      console.log('Firebase onValue triggered');
       const data = snapshot.val();
-      console.log('Firebase snapshot data:', data);
       if (data) {
-        const loadedProducts = Object.keys(data).map(key => {
-          const productData = data[key];
-          const id = isNaN(Number(key)) ? key : Number(key);
-          console.log(`Loading product with id: ${id}, name: ${productData.name}, key: ${key}`);
-          return {
-            id,
-            name: productData.name || '',
-            priceUSD: productData.priceUSD || 0,
-            priceB3TR: productData.priceB3TR || 0,
-            description: productData.description || '',
-            soldOut: productData.soldOut || false,
-          };
-        }).filter(p => p && p.name && typeof p.name.trim === 'function' && p.name.trim() !== '');
-        console.log('Loaded products:', loadedProducts);
+        const loadedProducts = Object.keys(data).map(key => ({
+          id: isNaN(Number(key)) ? key : Number(key),
+          name: data[key].name || '',
+          priceUSD: data[key].priceUSD || 0,
+          priceB3TR: data[key].priceB3TR || 0,
+          description: data[key].description || '',
+          soldOut: data[key].soldOut || false,
+        })).filter(p => p.name.trim());
         setProducts(loadedProducts);
       } else {
-        console.log('No products found in Firebase');
         setProducts([]);
       }
     }, (err) => {
-      const firebaseErr = err as FirebaseError;
-      console.error('Firebase listener error:', firebaseErr);
-      setError(`Could not fetch products: ${firebaseErr.message}`);
+      console.error('Firebase listener error:', err);
+      setError(`Could not fetch products: ${err.message}`);
     });
-    return () => {
-      console.log('Cleaning up Firebase products listener');
-      off(productsRef, 'value', listener);
-    };
+    return () => off(productsRef, 'value', listener);
   }, []);
 
-  // Handle auth state for admin functionality
+  // Handle auth state
   useEffect(() => {
-    console.log('Setting up Firebase auth listener');
     const init = async () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        console.log('Auth state changed, user:', user ? 'logged in' : 'not logged in');
-        setIsAdminLoggedIn(!!user);
-      });
-      return () => {
-        console.log('Cleaning up Firebase auth listener');
-        unsubscribe();
-      };
+      onAuthStateChanged(auth, (user) => setIsAdminLoggedIn(!!user));
     };
     init();
   }, []);
@@ -424,385 +367,183 @@ export default function StorePage() {
       await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
       setShowLoginModal(false);
       setError(null);
-      console.log('Admin login successful');
     } catch (err) {
-      setError('Login failed. Check credentials or network connection.');
+      setError('Login failed.');
       console.error('Login error:', err);
     }
   }, [loginEmail, loginPassword]);
 
   const handleAdminLogout = useCallback(async () => {
-    if (window.confirm('Are you sure you want to log out?')) {
+    if (window.confirm('Log out?')) {
       await signOut(auth);
       setShowManageForm(false);
-      console.log('Admin logged out');
     }
   }, []);
 
   const handleFormSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submit triggered, formProduct:', formProduct, 'editProductId:', editProductId);
     if (!formProduct.name.trim() || formProduct.priceUSD <= 0 || formProduct.priceB3TR <= 0) {
-      alert('Please fill in all fields with valid values.');
+      alert('Fill all fields with valid values.');
       return;
     }
     try {
       if (editProductId !== null) {
         const productRef = ref(database, `products/${editProductId}`);
-        console.log(`Updating product with id: ${editProductId}`);
-        await update(productRef, {
-          name: formProduct.name,
-          priceUSD: formProduct.priceUSD,
-          priceB3TR: formProduct.priceB3TR,
-          description: formProduct.description,
-          soldOut: formProduct.soldOut,
-        });
-        console.log('Firebase update successful for edit');
-        const snapshot = await get(productRef);
-        const updatedProduct = snapshot.val();
-        console.log('Updated product from Firebase:', updatedProduct);
-        setProducts(prevProducts =>
-          prevProducts.map(p =>
-            p.id === editProductId ? { id: editProductId, ...updatedProduct } : p
-          )
-        );
+        await update(productRef, formProduct);
+        setProducts(prev => prev.map(p => p.id === editProductId ? formProduct : p));
         setEditProductId(null);
       } else {
         const productsRef = ref(database, 'products');
         const newProductRef = push(productsRef);
-        const newId = newProductRef.key || Date.now().toString();
-        console.log(`Adding new product with id: ${newId}`);
-        await set(newProductRef, {
-          id: newId,
-          name: formProduct.name,
-          priceUSD: formProduct.priceUSD,
-          priceB3TR: formProduct.priceB3TR,
-          description: formProduct.description,
-          soldOut: formProduct.soldOut,
-        });
-        console.log('New product added to Firebase');
-        if (!window.confirm('Product added successfully! Add another?')) {
-          setShowManageForm(false);
-        }
+        await set(newProductRef, { id: newProductRef.key || Date.now(), ...formProduct });
+        if (!window.confirm('Add another?')) setShowManageForm(false);
         setFormProduct({ id: 0, name: '', priceUSD: 0, priceB3TR: 0, description: '', soldOut: false });
       }
-      const productsRef = ref(database, 'products');
-      const snapshot = await get(productsRef);
-      const data = snapshot.val();
-      if (data) {
-        const updatedProducts = Object.keys(data).map(key => {
-          const productData = data[key];
-          const id = isNaN(Number(key)) ? key : Number(key);
-          return {
-            id,
-            name: productData.name || '',
-            priceUSD: productData.priceUSD || 0,
-            priceB3TR: productData.priceB3TR || 0,
-            description: productData.description || '',
-            soldOut: productData.soldOut || false,
-          };
-        }).filter(p => p && p.name && typeof p.name.trim === 'function' && p.name.trim() !== '');
-        console.log('Refreshed products:', updatedProducts);
-        setProducts(updatedProducts);
-      }
+      const snapshot = await get(ref(database, 'products'));
+      setProducts(Object.keys(snapshot.val() || {}).map(key => ({
+        id: isNaN(Number(key)) ? key : Number(key),
+        ...snapshot.val()[key],
+      })).filter(p => p.name.trim()));
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-      console.error('Form submission error:', err);
-      if (errorMsg && !errorMsg.includes('Cannot read properties of undefined')) {
-        alert(`Failed to save product: ${errorMsg}. Check console for details.`);
-      }
+      console.error('Form submit error:', err);
+      alert(`Failed: ${err.message}`);
     }
   }, [formProduct, editProductId]);
 
   const handleEditProduct = useCallback((product: Product) => {
-    console.log('Edit product triggered, product:', product);
     setEditProductId(product.id);
-    setFormProduct({ ...product });
+    setFormProduct(product);
     setShowManageForm(true);
   }, []);
 
   const handleDeleteProduct = useCallback(async (productId: number | string) => {
-    console.log('Delete product triggered, productId:', productId);
-    if (window.confirm('Are you sure you want to delete this product?')) {
+    if (window.confirm('Delete this product?')) {
       try {
-        const productRef = ref(database, `products/${productId}`);
-        console.log(`Attempting to delete product with id: ${productId}`);
-        await remove(productRef);
-        console.log('Product deletion successful in Firebase');
-        const productsRef = ref(database, 'products');
-        const snapshot = await get(productsRef);
-        const data = snapshot.val();
-        if (data) {
-          const updatedProducts = Object.keys(data).map(key => {
-            const productData = data[key];
-            const id = isNaN(Number(key)) ? key : Number(key);
-            return {
-              id,
-              name: productData.name || '',
-              priceUSD: productData.priceUSD || 0,
-              priceB3TR: productData.priceB3TR || 0,
-              description: productData.description || '',
-              soldOut: productData.soldOut || false,
-            };
-          }).filter(p => p && p.name && typeof p.name.trim === 'function' && p.name.trim() !== '');
-          console.log('Updated products after deletion:', updatedProducts);
-          setProducts(updatedProducts);
-        } else {
-          console.log('No products remain in Firebase');
-          setProducts([]);
-        }
+        await remove(ref(database, `products/${productId}`));
+        setProducts(prev => prev.filter(p => p.id !== productId));
       } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Unknown error';
         console.error('Delete error:', err);
-        if (errorMsg && !errorMsg.includes('Cannot read properties of undefined')) {
-          alert(`Failed to delete product: ${errorMsg}. Check console for details.`);
-        }
+        alert(`Failed: ${err.message}`);
       }
     }
   }, []);
 
   const handlePurchase = useCallback((product: Product) => {
-    console.log('Buy Now clicked for:', JSON.stringify(product), { account });
     if (!product.soldOut) {
       setPaymentStatus('');
       setEmailError(null);
-      setSelectedProduct({ ...product });
+      setSelectedProduct(product);
       setUserDetails({ name: '', email: '', address: '' });
       setShowThankYou(false);
       setTransactionComplete(false);
-      setThankYouTxId(null);
-      setThankYouProduct(null);
-      console.log('Selected product updated to:', product, 'Modal should appear now');
     } else {
-      alert('This product is sold out!');
+      alert('Sold out!');
     }
-  }, [account]);
+  }, []);
 
   const handleB3TRPayment = useCallback(async () => {
-    console.log('Pay with B3TR clicked:', { account, thor: !!thor, signer: !!signer, selectedProduct: JSON.stringify(selectedProduct) });
     if (!account) {
-      setPaymentStatus('Please connect your wallet first.');
+      setPaymentStatus('Connect wallet.');
       openWalletModal();
-      await handleWalletConnect();
       return;
     }
     if (!thor || !signer || !selectedProduct) {
-      setPaymentStatus('Error: Missing required components for transaction.');
-      console.error('Missing requirements:', { account, thor: !!thor, signer: !!signer, selectedProduct });
-      alert('Error initiating transaction. Please try again.');
+      setPaymentStatus('Error: Missing components.');
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!userDetails.email || !emailRegex.test(userDetails.email.trim())) {
-      setPaymentStatus('Please enter a valid email address (e.g., user@example.com).');
-      console.error('Invalid or missing email:', userDetails.email);
-      alert('Please enter a valid email address (e.g., user@example.com).');
+      setPaymentStatus('Valid email required.');
       return;
     }
-    if (!userDetails.address || userDetails.address.trim() === '') {
-      setPaymentStatus('Please enter a shipping address.');
-      console.error('Missing address:', userDetails.address);
-      alert('Please enter a shipping address.');
+    if (!userDetails.address.trim()) {
+      setPaymentStatus('Enter shipping address.');
       return;
     }
-    if (balanceError) {
-      setPaymentStatus('Failed to fetch B3TR balance. Please try again.');
-      console.error('B3TR balance error:', balanceError);
-      alert('Failed to fetch B3TR balance. Please try again.');
-      return;
-    }
-    if (balanceData === null || balanceData === undefined) {
-      setPaymentStatus('B3TR balance unavailable. Please try again.');
-      console.error('B3TR balance unavailable');
-      alert('B3TR balance unavailable. Please try again.');
+    if (balanceError || !balanceData) {
+      setPaymentStatus('Balance fetch failed.');
       return;
     }
     if (Number(balanceData) < selectedProduct.priceB3TR) {
-      setPaymentStatus(`Insufficient B3TR balance. Required: ${selectedProduct.priceB3TR}, Available: ${balanceData}`);
-      console.error('Insufficient B3TR balance:', { required: selectedProduct.priceB3TR, available: balanceData });
-      alert(`Insufficient B3TR balance. Required: ${selectedProduct.priceB3TR} B3TR, Available: ${balanceData} B3TR. Please acquire more B3TR.`);
+      setPaymentStatus(`Insufficient B3TR: ${selectedProduct.priceB3TR} needed, ${balanceData} available.`);
       return;
     }
-    if (vthoError) {
-      setPaymentStatus('Failed to fetch VTHO balance. Please try again.');
-      console.error('VTHO balance error:', vthoError);
-      alert('Failed to fetch VTHO balance. Please try again.');
+    if (vthoError || !vthoData || Number(vthoData) < 1) {
+      setPaymentStatus('Insufficient VTHO.');
       return;
     }
-    if (vthoData && Number(vthoData) < 1) {
-      setPaymentStatus('Insufficient VTHO for gas. Please acquire more VTHO.');
-      console.error('Insufficient VTHO:', vthoData);
-      alert('Insufficient VTHO for gas. Please acquire more VTHO.');
-      return;
-    }
-    const tx = {
-      clauses: [
-        Clause.callFunction(
-          Address.of(b3trContractAddress),
-          ABIItem.ofSignature(ABIFunction, 'function transfer(address to, uint256 amount) returns (bool)'),
-          [Address.of(RECIPIENT_ADDRESS).toString(), Units.parseUnits(selectedProduct.priceB3TR.toString(), b3trDecimals).toString()]
-        ),
-      ],
-      chainTag: 0x186a9,
-      blockRef: '0x0000000000000000',
-      expiration: 32,
-      gas: 150000,
-      gasPriceCoef: 128,
-      nonce: Math.floor(Math.random() * 1000000000),
-      dependsOn: undefined,
-    };
     try {
-      console.log('Attempting to sign transaction with VeWorld:', JSON.stringify(tx));
-      // Refetch balances before transaction
-      await debounceRefetch(refetchRefs.current.refetchB3TR);
-      await debounceRefetch(refetchRefs.current.refetchVTHO);
-      if (Number(balanceData) < selectedProduct.priceB3TR) {
-        throw new Error('Balance insufficient after refresh');
-      }
-      let txId;
-      try {
-        txId = await signer.signTransaction(tx);
-        console.log('Transaction signed result:', txId);
-      } catch (signError) {
-        console.error('Initial signTransaction failed:', signError);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        console.log('Retrying signTransaction...');
-        txId = await signer.signTransaction(tx);
-        console.log('Retry transaction signed result:', txId);
-      }
-      if (!txId) {
-        throw new Error('No transaction ID returned');
-      }
-      setTxId(txId);
-      setPaymentStatus(`Transaction sent: ${txId}. Awaiting confirmation...`);
-      console.log('Transaction sent:', txId);
+      const clause = Clause.callFungible(
+        b3trContractAddress,
+        RECIPIENT_ADDRESS,
+        Units.parseUnits(selectedProduct.priceB3TR.toString(), b3trDecimals)
+      );
+      const tx = await signer.sendTransaction([clause]);
+      setTxId(tx.id);
+      setPaymentStatus(`Transaction sent: ${tx.id}. Awaiting confirmation...`);
     } catch (error) {
-      let errorMessage = 'Unknown error';
-      if (error instanceof Error) {
-        errorMessage = error.message || 'Unknown error';
-        if (error.message.includes('connection')) {
-          errorMessage = 'Wallet connection issue. Please check VeWorld extension.';
-        } else if (errorMessage.includes('method not supported')) {
-          errorMessage = 'VeWorld does not support the requested transaction method. Please ensure VeWorld is updated or contact support@veworld.net.';
-        } else if (errorMessage.includes('User cancelled')) {
-          errorMessage = 'Transaction rejected by user.';
-        } else if (errorMessage.includes('node') || errorMessage.includes('CORS')) {
-          errorMessage = 'Unable to connect to VeChain node. Check network connection or try a different node URL.';
-        } else if (errorMessage.includes('Balance insufficient')) {
-          errorMessage = `Insufficient B3TR balance. Required: ${selectedProduct.priceB3TR}, Available: ${balanceData}. Please acquire more B3TR.`;
-        }
-      }
-      setPaymentStatus(`Error: ${errorMessage}`);
-      console.error('Payment failed:', error);
+      setPaymentStatus(`Error: ${error.message || 'Unknown'}`);
       setTxId(null);
       setSelectedProduct(null);
-      setThankYouTxId(null);
-      setThankYouProduct(null);
-      setUserDetails({ name: '', email: '', address: '' });
-      setTransactionComplete(false);
     }
-  }, [account, thor, signer, selectedProduct, userDetails, balanceError, balanceData, vthoError, vthoData, b3trContractAddress, b3trDecimals, openWalletModal, debounceRefetch]);
+  }, [account, thor, signer, selectedProduct, userDetails, balanceError, balanceData, vthoError, vthoData, b3trContractAddress, RECIPIENT_ADDRESS]);
 
   const closeModal = useCallback(() => {
-    console.log('Closing PurchaseModal, resetting states, showThankYou:', showThankYou);
     setPaymentStatus('');
     setEmailError(null);
     setUserDetails({ name: '', email: '', address: '' });
     if (!showThankYou) {
       setTxId(null);
       setSelectedProduct(null);
-      setThankYouTxId(null);
-      setThankYouProduct(null);
-      setTransactionComplete(false);
     }
   }, [showThankYou]);
 
   const handleWalletConnect = useCallback(async () => {
-    console.log('Attempting manual wallet connection');
     try {
       await connect('veworld');
-      console.log('Manual connection attempt completed');
-      // Refetch balances on connect
       await debounceRefetch(refetchRefs.current.refetchB3TR);
       await debounceRefetch(refetchRefs.current.refetchVTHO);
     } catch (err) {
-      console.error('Manual connection failed:', (err as Error).message);
+      console.error('Wallet connect failed:', err);
     }
   }, [connect, debounceRefetch]);
 
   const handleManageProductsClick = useCallback(() => {
-    console.log('Manage Products clicked, checking auth state');
-    if (!isAdminLoggedIn) {
-      alert('Please log in as an admin to access this feature.');
-    } else {
-      setShowManageForm(true);
-      console.log('Admin logged in, showing manage form');
-    }
+    if (!isAdminLoggedIn) alert('Admin login required.');
+    else setShowManageForm(true);
   }, [isAdminLoggedIn]);
 
   const handleViewTxClick = useCallback(() => {
-    console.log('View Tx clicked, checking auth state');
-    if (!isAdminLoggedIn) {
-      alert('Please log in as an admin to access this feature.');
-    } else {
-      window.location.href = '/transactions';
-      console.log('Navigating to /transactions');
-    }
+    if (!isAdminLoggedIn) alert('Admin login required.');
+    else window.location.href = '/transactions';
   }, [isAdminLoggedIn]);
 
-  const handleDisconnect = useCallback(() => {
-    console.log('Disconnecting wallet');
-    disconnect();
-  }, [disconnect]);
+  const handleDisconnect = useCallback(() => disconnect(), [disconnect]);
 
-  console.log('Rendering StorePage with state:', { products: products.length, account, balanceData, showManageForm, showLoginModal, showThankYou });
-  if (error) {
-    console.log('Error state triggered, rendering error message:', error);
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p className="text-2xl text-red-600 font-bold">Error: {error}</p>
-      </div>
-    );
-  }
-
-  // Monitor state changes for debugging
-  useEffect(() => {
-    console.log('State changed:', { showThankYou, txId, selectedProduct, thankYouTxId, thankYouProduct, transactionComplete });
-  }, [showThankYou, txId, selectedProduct, thankYouTxId, thankYouProduct, transactionComplete]);
-
-  // Trigger handleTransactionUpdate when receipt is available
-  useEffect(() => {
-    if (!transactionComplete && receipt && selectedProduct && txId && account) {
-      console.log('Triggering handleTransactionUpdate from useEffect');
-      handleTransactionUpdate();
-    }
-  }, [receipt, selectedProduct, txId, account, handleTransactionUpdate, transactionComplete]);
-
-  // Fade-in logic
-  useEffect(() => {
-    console.log('Setting up IntersectionObserver for fade-in');
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            console.log('Fade-in triggered for:', entry.target);
-            entry.target.classList.add('fade-in');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    document.querySelectorAll('.fade-content').forEach((element) => {
-      console.log('Observing element:', element);
-      observer.observe(element);
+  const addToCart = useCallback((product: Product) => {
+    if (product.soldOut) return;
+    setCart(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      if (existing) return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+      return [...prev, { ...product, quantity: 1 }];
     });
-    return () => {
-      console.log('Cleaning up IntersectionObserver');
-      observer.disconnect();
-    };
   }, []);
 
-  console.log('Rendering main content');
+  const updateQuantity = useCallback((productId: number | string, delta: number) => {
+    setCart(prev => prev.map(item =>
+      item.id === productId ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
+    ).filter(item => item.quantity > 0));
+  }, []);
+
+  const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.priceB3TR * item.quantity, 0), [cart]);
+
+  const makePurchase = useCallback(() => {
+    if (cart.length === 0) return;
+    setSelectedProduct({ ...cart[0], priceB3TR: cartTotal }); // Use first item as reference, adjust price
+    handleB3TRPayment();
+    setShowCartModal(false);
+  }, [cart, cartTotal, handleB3TRPayment]);
+
   return (
     <>
       <Head>
@@ -830,62 +571,45 @@ export default function StorePage() {
               </p>
               <p className="text-xl mb-4 text-outline-amber">
                 Wallet Status: {account ? (
-                  <span className="text-green-500 text-outline-black">Connected (Network: mainnet) <button onClick={handleDisconnect} className="ml-2 bg-red-500 text-white px-2 py-1 rounded">Disconnect</button></span>
+                  <span className="text-green-500 text-outline-black">Connected <button onClick={handleDisconnect} className="ml-2 bg-red-500 text-white px-2 py-1 rounded">Disconnect</button></span>
                 ) : (
                   <span className="text-red-500">Not Connected</span>
                 )}
               </p>
               {!account && <WalletButton />}
-              {balanceError && (
-                <p className="text-xl mb-4 text-red-500">
-                  Error fetching B3TR balance: {balanceError.message}
-                </p>
-              )}
-              {balanceData !== null && balanceData !== undefined && (
-                <p className="text-xl mb-4">
-                  B3TR Balance: {balanceData} <span className="text-custom-blue text-outline-amber">B3TR</span>
-                </p>
-              )}
-              {balanceData === null && !balanceError && (
-                <p className="text-xl mb-4 text-yellow-500 text-outline-amber">
-                  B3TR Balance: Loading...
-                </p>
-              )}
-              {vthoError && (
-                <p className="text-xl mb-4 text-red-500">Error fetching VTHO balance: {vthoError.message}</p>
-              )}
-              {vthoData && (
-                <p className="text-xl mb-4">
-                  VTHO Balance: {vthoData} VTHO
-                </p>
-              )}
+              {balanceError && <p className="text-xl mb-4 text-red-500">Error fetching B3TR: {balanceError.message}</p>}
+              {balanceData !== null && <p className="text-xl mb-4">B3TR: {balanceData} B3TR</p>}
+              {balanceData === null && !balanceError && <p className="text-xl mb-4 text-yellow-500">B3TR: Loading...</p>}
+              {vthoError && <p className="text-xl mb-4 text-red-500">Error fetching VTHO: {vthoError.message}</p>}
+              {vthoData && <p className="text-xl mb-4">VTHO: {vthoData} VTHO</p>}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {products.length > 0 ? (
-                  products.map((product) => (
-                    <div key={product.id} className="bg-custom-blue p-4 rounded-lg shadow text-center relative text-outline-black">
-                      <p className="text-2xl font-bold text-white">
-                        {product.name.split(' ').map((word, i) =>
-                          word === 'BEACH' ? <span key={i} className="text-amber-400">{word}</span> : word + ' '
-                        )}
-                      </p>
-                      <p className="text-xl text-white">
-                        {product.priceB3TR} <span className="text-custom-blue text-outline-amber">B3TR</span>
-                      </p>
-                      <p className="text-xl text-white">{product.description}</p>
-                      <button
-                        type="button"
-                        className={product.soldOut ? 'bg-red-500 text-black text-2xl font-bold px-4 py-2 rounded-lg mt-4' : 'bg-amber-400 text-green-500 text-2xl font-bold px-4 py-2 rounded-lg mt-4 hover:bg-black hover:text-green-500 text-outline-black'}
-                        onClick={() => !product.soldOut && handlePurchase(product)}
-                        disabled={product.soldOut}
-                      >
-                        {product.soldOut ? 'SOLD OUT' : 'Buy Now'}
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-xl">No products available. Log in as admin to add products.</p>
-                )}
+                {products.map((product) => (
+                  <div key={product.id} className="bg-custom-blue p-4 rounded-lg shadow text-center relative text-outline-black">
+                    <p className="text-2xl font-bold text-white">
+                      {product.name.split(' ').map((word, i) =>
+                        word === 'BEACH' ? <span key={i} className="text-amber-400">{word}</span> : word + ' '
+                      )}
+                    </p>
+                    <p className="text-xl text-white">{product.priceB3TR} B3TR</p>
+                    <p className="text-xl text-white">{product.description}</p>
+                    <button
+                      type="button"
+                      className={product.soldOut ? 'bg-red-500 text-black text-xl font-bold px-4 py-2 rounded-lg mt-4' : 'bg-amber-400 text-green-500 text-xl font-bold px-4 py-2 rounded-lg mt-4 hover:bg-black hover:text-green-500 text-outline-black'}
+                      onClick={() => !product.soldOut && addToCart(product)}
+                      disabled={product.soldOut}
+                    >
+                      🛒 Add to Cart
+                    </button>
+                  </div>
+                ))}
               </div>
+              <button
+                type="button"
+                className="bg-amber-400 text-green-500 text-2xl font-bold px-4 py-2 rounded-lg mt-4 hover:bg-black hover:text-green-500 text-outline-black"
+                onClick={() => setShowCartModal(true)}
+              >
+                🛒 Cart {cart.length > 0 && <span className="ml-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center">{cart.length}</span>}
+              </button>
               <Link
                 href="/"
                 className="bg-amber-400 text-green-500 text-2xl font-bold px-4 py-2 rounded-lg mt-4 mb-12 inline-block hover:bg-black hover:text-green-500 text-outline-black"
@@ -967,11 +691,7 @@ export default function StorePage() {
                   <button
                     type="button"
                     className={`px-4 py-2 rounded-lg ${formProduct.soldOut ? 'bg-red-500 text-white' : 'bg-green-500 text-white'} hover:${formProduct.soldOut ? 'bg-red-600' : 'bg-green-600'}`}
-                    onClick={() => {
-                      const newSoldOut = !formProduct.soldOut;
-                      console.log(`Toggling add form soldOut to: ${newSoldOut}`);
-                      setFormProduct(prev => ({ ...prev, soldOut: newSoldOut }));
-                    }}
+                    onClick={() => setFormProduct({ ...formProduct, soldOut: !formProduct.soldOut })}
                   >
                     {formProduct.soldOut ? 'In Stock' : 'Sold Out'}
                   </button>
@@ -979,12 +699,6 @@ export default function StorePage() {
                 <button
                   type="submit"
                   className="bg-amber-400 text-green-500 px-4 py-2 rounded-lg font-bold hover:bg-black hover:text-green-500"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleFormSubmit(e).then(() => {
-                      console.log('Add form submission completed successfully');
-                    }).catch(err => console.error('Add submission error:', err));
-                  }}
                 >
                   Add Product
                 </button>
@@ -1017,40 +731,8 @@ export default function StorePage() {
                       className={`ml-2 px-2 py-1 rounded-lg ${product.soldOut ? 'bg-red-500 text-white' : 'bg-green-500 text-white'} hover:${product.soldOut ? 'bg-red-600' : 'bg-green-600'}`}
                       onClick={() => {
                         const newSoldOut = !product.soldOut;
-                        console.log(`Toggling soldOut to: ${newSoldOut} for product id: ${product.id}`);
-                        const productRef = ref(database, `products/${product.id}`);
-                        update(productRef, { soldOut: newSoldOut }).then(() => {
-                          console.log(`Firebase updated soldOut to: ${newSoldOut} for id: ${product.id} successfully`);
-                          setProducts(prevProducts =>
-                            prevProducts.map(p =>
-                              p.id === product.id ? { ...p, soldOut: newSoldOut } : p
-                            )
-                          );
-                          const productsRef = ref(database, 'products');
-                          get(productsRef).then(snapshot => {
-                            const data = snapshot.val();
-                            if (data) {
-                              const refreshedProducts = Object.keys(data).map(key => {
-                                const productData = data[key];
-                                const id = isNaN(Number(key)) ? key : Number(key);
-                                return {
-                                  id,
-                                  name: productData.name || '',
-                                  priceUSD: productData.priceUSD || 0,
-                                  priceB3TR: productData.priceB3TR || 0,
-                                  description: productData.description || '',
-                                  soldOut: productData.soldOut || false,
-                                };
-                              }).filter(p => p && p.name && typeof p.name.trim === 'function' && p.name.trim() !== '');
-                              console.log('Refreshed products after toggle:', refreshedProducts);
-                              setProducts(refreshedProducts);
-                            }
-                          }).catch(err => console.error('Refresh error after toggle:', err));
-                        }).catch(err => {
-                          const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-                          console.error('Toggle update error:', err);
-                          if (errorMsg) alert(`Failed to toggle status: ${errorMsg}. Check console for details.`);
-                        });
+                        update(ref(database, `products/${product.id}`), { soldOut: newSoldOut });
+                        setProducts(prev => prev.map(p => p.id === product.id ? { ...p, soldOut: newSoldOut } : p));
                       }}
                     >
                       {product.soldOut ? 'In Stock' : 'Sold Out'}
@@ -1116,11 +798,7 @@ export default function StorePage() {
                   <button
                     type="button"
                     className={`px-4 py-2 rounded-lg ${formProduct.soldOut ? 'bg-red-500 text-white' : 'bg-green-500 text-white'} hover:${formProduct.soldOut ? 'bg-red-600' : 'bg-green-600'}`}
-                    onClick={() => {
-                      const newSoldOut = !formProduct.soldOut;
-                      console.log(`Toggling edit form soldOut to: ${newSoldOut} for id: ${editProductId}`);
-                      setFormProduct(prev => ({ ...prev, soldOut: newSoldOut }));
-                    }}
+                    onClick={() => setFormProduct({ ...formProduct, soldOut: !formProduct.soldOut })}
                   >
                     {formProduct.soldOut ? 'In Stock' : 'Sold Out'}
                   </button>
@@ -1128,13 +806,6 @@ export default function StorePage() {
                 <button
                   type="submit"
                   className="bg-amber-400 text-green-500 px-4 py-2 rounded-lg font-bold hover:bg-black hover:text-green-500"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleFormSubmit(e).then(() => {
-                      console.log('Edit form submission completed successfully');
-                      setEditProductId(null);
-                    }).catch(err => console.error('Edit submission error:', err));
-                  }}
                 >
                   Save Changes
                 </button>
@@ -1174,7 +845,6 @@ export default function StorePage() {
                 userDetails={userDetails}
                 emailError={emailError}
                 onClose={() => {
-                  console.log('ThankYouPage onClose triggered, resetting states');
                   setShowThankYou(false);
                   setTxId(null);
                   setSelectedProduct(null);
@@ -1231,7 +901,53 @@ export default function StorePage() {
             </div>
           </div>
         )}
+        {showCartModal && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-3/4">
+              <h3 className="text-2xl font-bold mb-4 text-center">Shopping Cart</h3>
+              {cart.length === 0 ? (
+                <p className="text-center">Your cart is empty.</p>
+              ) : (
+                <>
+                  {cart.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center mb-4">
+                      <span>{item.name} - {item.priceB3TR} B3TR x {item.quantity}</span>
+                      <div>
+                        <button
+                          className="bg-green-500 text-white px-2 py-1 rounded-lg mr-2 hover:bg-green-600"
+                          onClick={() => updateQuantity(item.id, 1)}
+                        >
+                          +
+                        </button>
+                        <button
+                          className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600"
+                          onClick={() => updateQuantity(item.id, -1)}
+                        >
+                          -
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <p className="text-xl font-bold mt-4">Total: {cartTotal} B3TR</p>
+                  <button
+                    className="bg-amber-400 text-green-500 px-4 py-2 rounded-lg mt-4 font-bold hover:bg-black hover:text-green-500"
+                    onClick={makePurchase}
+                  >
+                    Make Purchase
+                  </button>
+                </>
+              )}
+              <button
+                className="bg-gray-400 text-red-500 px-4 py-2 rounded-lg mt-4 font-bold hover:bg-red-600 hover:text-white"
+                onClick={() => setShowCartModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
 }
+</DOCUMENT>
