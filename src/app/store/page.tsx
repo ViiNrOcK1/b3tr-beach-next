@@ -200,7 +200,7 @@ export default function StorePage() {
 
   const makePurchase = useCallback(() => {
     if (cart.length === 0) return;
-    setSelectedProduct({ ..., { ...cart[0], priceB3TR: cartTotal });
+    setSelectedProduct({ ...cart[0], priceB3TR: cartTotal });
     setShowCartModal(false);
   }, [cart, cartTotal]);
 
