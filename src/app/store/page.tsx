@@ -194,12 +194,6 @@ export default function StorePage() {
     });
   }, []);
 
-  const updateQuantity = useCallback((productId, delta) => {
-    setCart(prev => prev.map(item =>
-      item.id === productId ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
-    ).filter(item => item.quantity > 0));
-  }, []);
-
   const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.priceB3TR * item.quantity, 0), [cart]);
 
   const makePurchase = useCallback(() => {
@@ -265,7 +259,7 @@ export default function StorePage() {
               {balanceData && <p className="text-xl mb-4">B3TR: {balanceData}</p>}
               {vthoData && <p className="text-xl mb-4">VTHO: {vthoData}</p>}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {products.map((product) => (
+                {products.length > 0 ? products.map((product) => (
                   <div key={product.id} className="bg-custom-blue p-4 rounded-lg shadow text-center">
                     <p className="text-2xl font-bold text-white">
                       {product.name.split(' ').map((word, i) =>
@@ -281,7 +275,7 @@ export default function StorePage() {
                       Add to Cart
                     </button>
                   </div>
-                ))}
+                )) : <p className="text-xl">Loading products...</p>}
               </div>
               <button
                 onClick={() => setShowCartModal(true)}
