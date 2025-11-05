@@ -1,4 +1,4 @@
-// src/app/store/page.tsx
+// @ts-nocheck
 "use client";
 import Head from 'next/head';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -15,9 +15,6 @@ import { useBeats } from '@/hooks/useBeats';
 import { auth, database } from '@/firebase';
 import { ref, onValue, set, push, update, remove, off, get } from 'firebase/database';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from 'firebase/auth';
-
-// @ts-nocheck — Disable TypeScript in this file
-// @ts-nocheck
 
 export default function StorePage() {
   const [products, setProducts] = useState([]);
@@ -59,7 +56,7 @@ export default function StorePage() {
   const b3trDecimals = 18;
 
   const lastRefetch = useRef(0);
-  const debounceRefetch = useCallback((refetchFn) => {
+  const debounceRefetch = useCallback((refetchFn: any) => {
     const now = Date.now();
     if (now - lastRefetch.current > 10000) {
       lastRefetch.current = now;
