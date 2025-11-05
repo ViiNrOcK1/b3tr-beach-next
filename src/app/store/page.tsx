@@ -1,4 +1,4 @@
-// src/app/store/page.tsx
+// @ts-nocheck
 "use client";
 import Head from 'next/head';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -15,9 +15,6 @@ import { useBeats } from '@/hooks/useBeats';
 import { auth, database } from '@/firebase';
 import { ref, onValue, set, push, update, remove, off, get } from 'firebase/database';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from 'firebase/auth';
-
-// @ts-nocheck — Disable TypeScript to avoid Turbopack errors
-// @ts-nocheck
 
 export default function StorePage() {
   const [products, setProducts] = useState([]);
@@ -92,7 +89,7 @@ export default function StorePage() {
     queryFn: async () => {
       if (!account || !thor) return null;
       try {
-        const result = await thor.contracts.executeCall(
+        const result: any = await thor.contracts.executeCall(
           b3trContractAddress,
           ABIItem.ofSignature(ABIFunction, 'function balanceOf(address owner) view returns (uint256)'),
           [Address.of(account).toString()]
@@ -203,8 +200,7 @@ export default function StorePage() {
 
   const makePurchase = useCallback(() => {
     if (cart.length === 0) return;
-    const total = cartTotal;
-    setSelectedProduct({ ...cart[0], priceB3TR: total });
+    setSelectedProduct({ ..., { ...cart[0], priceB3TR: cartTotal });
     setShowCartModal(false);
   }, [cart, cartTotal]);
 
@@ -229,17 +225,6 @@ export default function StorePage() {
       setPaymentStatus(`Error: ${error.message}`);
     }
   }, [account, thor, signer, selectedProduct, userDetails, balanceData]);
-
-  const handlePurchase = useCallback((product) => {
-    if (!product.soldOut) {
-      setSelectedProduct(product);
-      setUserDetails({ name: '', email: '', address: '' });
-      setShowThankYou(false);
-      setTransactionComplete(false);
-    } else {
-      alert('Sold out!');
-    }
-  }, []);
 
   return (
     <>
@@ -350,23 +335,6 @@ export default function StorePage() {
               </button>
             </div>
           </div>
-        )}
-        {selectedProduct && !showThankYou && (
-          <PurchaseModal
-            selectedProduct={selectedProduct}
-            userDetails={userDetails}
-            setUserDetails={setUserDetails}
-            paymentStatus={paymentStatus}
-            account={account}
-            formRef={formRef}
-            handleB3TRPayment={handleB3TRPayment}
-            openWalletModal={openWalletModal}
-            closeModal={() => {
-              setPaymentStatus('');
-              setUserDetails({ name: '', email: '', address: '' });
-              setSelectedProduct(null);
-            }}
-          />
         )}
       </div>
     </>
