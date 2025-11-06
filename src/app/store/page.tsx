@@ -387,7 +387,7 @@ export default function StorePage() {
             timestamp: new Date().toISOString(),
              // FIX 1 (Email): Add logo_url. 
              // YOU MUST REPLACE THIS with your *full* public URL from Netlify
-            logo_url: 'https://b3tr-beach.netlify.app/assets/B3TRBEACHLogoBanner.JPEG' // <-- IMPORTANT: Update this URL if different
+            logo_url: 'https://b3trbeach.org/assets/B3TRBEACHLogoBanner.JPEG' // <-- IMPORTANT: Update this URL if different
           };
           
           emailjs.send('B3TRBEACH', 'B3TRConfirm', emailPayload, '-yJ3RZmkCyvjwXcnb')
