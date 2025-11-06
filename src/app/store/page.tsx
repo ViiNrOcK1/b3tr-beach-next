@@ -115,7 +115,7 @@ interface CartModalProps {
 function CartModal({ cart, onClose, onAdjustQuantity, onCheckout, cartTotal }: CartModalProps) {
   return (
     // FIX 1: Darkened backdrop
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <h3 className="text-2xl font-bold mb-4 text-center">Your Cart</h3>
         
@@ -353,11 +353,32 @@ export default function StorePage() {
       push(purchasesRef, newPurchase)
         .then(() => {
           console.log('Purchase recorded in Firebase');
-          if (formRef.current) {
-            emailjs.sendForm('B3TRBEACH', 'B3TRConfirm', formRef.current, '-yJ3RZmkCyvjwXcnb')
-              .then((res) => console.log('Confirmation email sent:', res.text))
-              .catch(err => console.error('Email send error:', err));
-          }
+          
+          // --- FIX 6: Send email with JS object (emailjs.send) ---
+          const emailPayload = {
+            from_name: userDetails.name, // Use 'from_name' if your template expects it
+            to_name: userDetails.name,
+            email: userDetails.email,
+            userEmail: userDetails.email,
+            to_email: userDetails.email, // Send to the user's email
+            user_address: userDetails.address,
+            itemName: selectedProduct.name,
+            priceB3TR: `${selectedProduct.priceB3TR} B3TR`,
+            totalPriceB3TR: `${selectedProduct.priceB3TR} B3TR`,
+            transactionId: txId, // Now txId is available
+            shipping: 'Free',
+            timestamp: new Date().toISOString(),
+          };
+          
+          emailjs.send('B3TRBEACH', 'B3TRConfirm', emailPayload, '-yJ3RZmkCyvjwXcnb')
+            .then((res) => {
+              console.log('Confirmation email sent:', res.text);
+              setEmailError(null);
+            })
+            .catch((err) => {
+              console.error('Email send error:', err);
+              setEmailError('Failed to send confirmation email.');
+            });
         })
         .catch(err => console.error('Firebase save error:', err));
       
@@ -768,7 +789,7 @@ export default function StorePage() {
         {/* Login Modal */}
         {showLoginModal && (
           // FIX 1: Darkened backdrop
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
               <h3 className="text-2xl font-bold mb-4">Admin Login</h3>
               <form onSubmit={handleAdminLogin}>
@@ -799,7 +820,7 @@ export default function StorePage() {
         {/* --- FIX 3: Restored original Manage Products Modals (with scroll fix) --- */}
         {/* Manage Products Modal (Add) */}
         {isAdminLoggedIn && showManageForm && !editProductId && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 p-4">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
             {/* FIX 1: Added overflow-y-auto and max-h-[90vh] for mobile scrolling */}
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
               <h3 className="text-2xl font-bold mb-4 text-center">Manage Products - Add New</h3>
@@ -912,7 +933,7 @@ export default function StorePage() {
         
         {/* Manage Products Modal (Edit) */}
         {isAdminLoggedIn && showManageForm && editProductId && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 p-4">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
             {/* FIX 1: Added overflow-y-auto and max-h-[90vh] for mobile scrolling */}
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
               <h3 className="text-2xl font-bold mb-4 text-center">Manage Products - Edit</h3>
@@ -1015,7 +1036,7 @@ export default function StorePage() {
         {/* Thank You Modal */}
         {showThankYou && (
           // FIX 1: Darkened backdrop
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-3/4 text-center overflow-auto">
               <ThankYouPage
                 txId={thankYouTxId}
@@ -1066,7 +1087,3 @@ export default function StorePage() {
     </>
   );
 }
-
-
-
-
