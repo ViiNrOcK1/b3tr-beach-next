@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import ThankYouPage from '@/components/ThankYouPage';
-import { auth, database } from '@/firebase';
+// import Head from 'next/head'; // Removed, not used in App Router
+import Transactions from '../../components/Transactions'; // Changed path
+import { auth, database } from '../../firebase'; // Changed path
 import {
   signInWithEmailAndPassword,
   setPersistence,
@@ -112,38 +113,14 @@ export default function TransactionsPage() {
     );
   }
 
-  // Show first transaction (or placeholder)
-  const tx = transactions[0] ?? {
-    item: 'N/A',
-    amount: 0,
-    txId: 'N/A',
-    timestamp: new Date().toISOString(),
-    userName: 'N/A',
-    userEmail: 'N/A',
-    userAddress: 'N/A',
-  };
-
-  const handleClose = () => {
-    window.location.href = '/store';
-  };
-
+  // FIX: Render the <Transactions> component instead of <ThankYouPage>
   return (
-    <ThankYouPage
-      txId={tx.txId}
-      selectedProduct={{
-        id: 0,
-        name: tx.item,
-        priceUSD: 0,
-        priceB3TR: tx.amount,
-        description: '',
-      }}
-      userDetails={{
-        name: tx.userName,
-        email: tx.userEmail,
-        address: tx.userAddress,
-      }}
-      emailError={null}
-      onClose={handleClose}
-    />
+    <>
+      {/* <Head> -- Removed
+        <title>B3TR BEACH Transactions</title>
+      </Head> */}
+      <Transactions transactions={transactions} />
+    </>
   );
 }
+
