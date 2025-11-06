@@ -114,7 +114,6 @@ interface CartModalProps {
 
 function CartModal({ cart, onClose, onAdjustQuantity, onCheckout, cartTotal }: CartModalProps) {
   return (
-    // FIX 1: Darkened backdrop
     <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <h3 className="text-2xl font-bold mb-4 text-center">Your Cart</h3>
@@ -218,11 +217,9 @@ export default function StorePage() {
 
   // --- FIX 4: State for Draggable Cart ---
   const [isDragging, setIsDragging] = useState(false);
-  // Position is {x: pixels from left, y: pixels from top}
-  // Initialize to bottom-right, but update on mount
+  const [hasDragged, setHasDragged] = useState(false); // New state to track if a drag *occurred*
   const [cartPosition, setCartPosition] = useState({ x: 300, y: 500 }); 
-  // Stores offset of mouse from top-left corner of button
-  const [dragStartOffset, setDragStartOffset] = useState({ x: 0, y: 0 });
+  const [dragStartInfo, setDragStartInfo] = useState({ x: 0, y: 0, mouseX: 0, mouseY: 0 });
   const cartButtonRef = useRef<HTMLButtonElement>(null);
 
   // Set initial cart position on mount
@@ -389,8 +386,8 @@ export default function StorePage() {
             shipping: 'Free',
             timestamp: new Date().toISOString(),
              // FIX 1 (Email): Add logo_url. 
-             // YOU MUST REPLACE THIS with your *full* public URL
-            logo_url: 'https://b3trbeach.org/assets/B3TRBEACHLogoBanner.JPEG' // <-- IMPORTANT: Update this URL
+             // YOU MUST REPLACE THIS with your *full* public URL from Netlify
+            logo_url: 'https://b3tr-beach.netlify.app/assets/B3TRBEACHLogoBanner.JPEG' // <-- IMPORTANT: Update this URL if different
           };
           
           emailjs.send('B3TRBEACH', 'B3TRConfirm', emailPayload, '-yJ3RZmkCyvjwXcnb')
@@ -700,14 +697,17 @@ export default function StorePage() {
     }
     e.preventDefault(); // Prevent text selection
     setIsDragging(true);
+    setHasDragged(false); // Reset hasDragged on new drag start
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     const rect = cartButtonRef.current.getBoundingClientRect();
 
-    setDragStartOffset({
+    setDragStartInfo({
       x: clientX - rect.left,
       y: clientY - rect.top,
+      mouseX: clientX, // Store initial mouse X
+      mouseY: clientY, // Store initial mouse Y
     });
   };
 
@@ -717,8 +717,15 @@ export default function StorePage() {
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     
-    let newX = clientX - dragStartOffset.x;
-    let newY = clientY - dragStartOffset.y;
+    // Check if it's a "real" drag
+    const movedX = Math.abs(clientX - dragStartInfo.mouseX);
+    const movedY = Math.abs(clientY - dragStartInfo.mouseY);
+    if (movedX > 5 || movedY > 5) {
+      setHasDragged(true); // It's a drag, not a click
+    }
+
+    let newX = clientX - dragStartInfo.x;
+    let newY = clientY - dragStartInfo.y;
 
     // Constrain movement within the viewport
     const buttonWidth = cartButtonRef.current?.offsetWidth || 72; // 72px approx
@@ -732,14 +739,11 @@ export default function StorePage() {
       x: newX,
       y: newY,
     });
-  }, [isDragging, dragStartOffset]);
+  }, [isDragging, dragStartInfo]);
 
   const handleDragEnd = useCallback(() => {
-    // Set dragging to false *after* a tiny delay,
-    // so the 'onClick' event can check its value and prevent firing.
-    setTimeout(() => {
-      setIsDragging(false);
-    }, 50);
+    setIsDragging(false);
+    // Note: We reset hasDragged in the onClick handler
   }, []);
 
   // Add global listeners for dragging
@@ -1156,12 +1160,11 @@ export default function StorePage() {
           onTouchStart={handleDragStart}
           onClick={() => {
             // Only trigger click if not dragging
-            if (isDragging) {
-              // This click was the end of a drag, so reset drag state
-              setIsDragging(false); 
+            if (hasDragged) {
+              setHasDragged(false); // Reset for next click
               return;
-            };
-            // This was a true click, open the modal
+            }
+            // This was a true click
             setShowCartModal(true);
           }}
           style={{
