@@ -114,8 +114,8 @@ interface CartModalProps {
 
 function CartModal({ cart, onClose, onAdjustQuantity, onCheckout, cartTotal }: CartModalProps) {
   return (
-    // FIX 2: Darkened backdrop
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
+    // FIX 1: Darkened backdrop
+    <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <h3 className="text-2xl font-bold mb-4 text-center">Your Cart</h3>
         
@@ -218,8 +218,10 @@ export default function StorePage() {
 
   // --- FIX 4: State for Draggable Cart ---
   const [isDragging, setIsDragging] = useState(false);
+  // Position is {x: pixels from right, y: pixels from bottom}
   const [cartPosition, setCartPosition] = useState({ x: 24, y: 24 });
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  // Stores {mouseX, mouseY, cartX, cartY}
+  const [dragStart, setDragStart] = useState({ mouseX: 0, mouseY: 0, cartX: 0, cartY: 0 });
   const cartButtonRef = useRef<HTMLButtonElement>(null);
 
 
@@ -346,8 +348,8 @@ export default function StorePage() {
       setCart([]); // Clear the cart
 
       const newPurchase: Purchase = {
-        item: selectedProduct.name, // This is now "B3TR BEACH Order (X Items)"
-        amount: selectedProduct.priceB3TR, // This is the cartTotal
+        item: selectedProduct.name,
+        amount: selectedProduct.priceB3TR,
         account,
         txId,
         timestamp: new Date().toISOString(),
@@ -369,7 +371,7 @@ export default function StorePage() {
             userEmail: userDetails.email,
             to_email: userDetails.email,
             user_address: userDetails.address,
-            // Use description for itemization, as it's "Item A (x1), Item B (x2)"
+            // Use description for itemization
             itemName: selectedProduct.description, 
             // Use 'price' and 'totalPrice' to match the template {{price}}
             price: `${selectedProduct.priceB3TR} B3TR`,
@@ -377,6 +379,9 @@ export default function StorePage() {
             transactionId: txId, 
             shipping: 'Free',
             timestamp: new Date().toISOString(),
+             // FIX 1 (Email): Add logo_url. 
+             // REPLACE THIS with your *full* public URL
+            logo_url: 'https://b3trbeach.com/assets/B3TRBEACHLogoBanner.JPEG' 
           };
           
           emailjs.send('B3TRBEACH', 'B3TRConfirm', emailPayload, '-yJ3RZmkCyvjwXcnb')
@@ -680,23 +685,41 @@ export default function StorePage() {
 
   // --- FIX 4: Draggable Cart Button Logic ---
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    // Only start drag on the button itself, not the modal
+    if (e.target !== cartButtonRef.current && !(cartButtonRef.current && cartButtonRef.current.contains(e.target as Node))) {
+      return;
+    }
+    e.preventDefault(); // Prevent text selection
     setIsDragging(true);
+    
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
     setDragStart({
-      x: clientX - cartPosition.x,
-      y: clientY - cartPosition.y,
+      mouseX: clientX,
+      mouseY: clientY,
+      cartX: cartPosition.x,
+      cartY: cartPosition.y,
     });
   };
 
   const handleDragMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging) return;
+    
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     
+    const deltaX = clientX - dragStart.mouseX;
+    const deltaY = clientY - dragStart.mouseY;
+
+    // We subtract deltaX from right, and deltaY from bottom
+    let newX = dragStart.cartX - deltaX;
+    let newY = dragStart.cartY - deltaY;
+
     // Constrain movement within the viewport
-    const newX = Math.min(Math.max(clientX - dragStart.x, 24), window.innerWidth - 80); // 80 = button width + padding
-    const newY = Math.min(Math.max(clientY - dragStart.y, 24), window.innerHeight - 80); // 80 = button height + padding
+    const buttonSize = 80; // Approx size of button + padding
+    newX = Math.min(Math.max(newX, 24), window.innerWidth - buttonSize); // 24px padding
+    newY = Math.min(Math.max(newY, 24), window.innerHeight - buttonSize); // 24px padding
 
     setCartPosition({
       x: newX,
@@ -710,6 +733,7 @@ export default function StorePage() {
 
   // Add global listeners for dragging
   useEffect(() => {
+    // Bind move/end listeners to the window to catch mouse leaving button
     window.addEventListener('mousemove', handleDragMove);
     window.addEventListener('mouseup', handleDragEnd);
     window.addEventListener('touchmove', handleDragMove);
@@ -989,7 +1013,7 @@ export default function StorePage() {
         
         {/* Manage Products Modal (Edit) */}
         {isAdminLoggedIn && showManageForm && editProductId && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
             {/* FIX 1: Added overflow-y-auto and max-h-[90vh] for mobile scrolling */}
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
               <h3 className="text-2xl font-bold mb-4 text-center">Manage Products - Edit</h3>
@@ -1092,7 +1116,7 @@ export default function StorePage() {
         {/* Thank You Modal */}
         {showThankYou && (
           // FIX 1: Darkened backdrop
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
+          <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-3/4 text-center overflow-auto">
               <ThankYouPage
                 txId={thankYouTxId}
@@ -1117,18 +1141,20 @@ export default function StorePage() {
         {/* --- FIX 4: Draggable Cart Button --- */}
         <button
           ref={cartButtonRef}
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
           onClick={() => {
+            // Only trigger click if not dragging
             if (!isDragging) {
               setShowCartModal(true);
             }
           }}
-          onMouseDown={handleDragStart}
-          onTouchStart={handleDragStart}
           style={{
             position: 'fixed',
             right: `${cartPosition.x}px`,
             bottom: `${cartPosition.y}px`,
             cursor: isDragging ? 'grabbing' : 'grab',
+            touchAction: 'none', // Prevent page scroll while dragging
           }}
           className="bg-custom-blue text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-40"
           aria-label="Open Cart"
