@@ -390,7 +390,7 @@ export default function StorePage() {
             timestamp: new Date().toISOString(),
              // FIX 1 (Email): Add logo_url. 
              // YOU MUST REPLACE THIS with your *full* public URL
-            logo_url: 'https://your-website.com/assets/B3TRBEACHLogoBanner.JPEG' // <-- IMPORTANT: Update this URL
+            logo_url: 'https://b3trbeach.org/assets/B3TRBEACHLogoBanner.JPEG' // <-- IMPORTANT: Update this URL
           };
           
           emailjs.send('B3TRBEACH', 'B3TRConfirm', emailPayload, '-yJ3RZmkCyvjwXcnb')
