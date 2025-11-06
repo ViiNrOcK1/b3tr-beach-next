@@ -218,11 +218,20 @@ export default function StorePage() {
 
   // --- FIX 4: State for Draggable Cart ---
   const [isDragging, setIsDragging] = useState(false);
-  // Position is {x: pixels from right, y: pixels from bottom}
-  const [cartPosition, setCartPosition] = useState({ x: 24, y: 24 });
-  // Stores {mouseX, mouseY, cartX, cartY}
-  const [dragStart, setDragStart] = useState({ mouseX: 0, mouseY: 0, cartX: 0, cartY: 0 });
+  // Position is {x: pixels from left, y: pixels from top}
+  // Initialize to bottom-right, but update on mount
+  const [cartPosition, setCartPosition] = useState({ x: 300, y: 500 }); 
+  // Stores offset of mouse from top-left corner of button
+  const [dragStartOffset, setDragStartOffset] = useState({ x: 0, y: 0 });
   const cartButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Set initial cart position on mount
+  useEffect(() => {
+    setCartPosition({
+      x: window.innerWidth - 88, // 24px padding + 64px width
+      y: window.innerHeight - 88, // 24px padding + 64px height
+    });
+  }, []);
 
 
   const lastRefetch = useRef(0);
@@ -348,8 +357,8 @@ export default function StorePage() {
       setCart([]); // Clear the cart
 
       const newPurchase: Purchase = {
-        item: selectedProduct.name,
-        amount: selectedProduct.priceB3TR,
+        item: selectedProduct.name, // This is "B3TR BEACH Order (X Items)"
+        amount: selectedProduct.priceB3TR, // This is the cartTotal
         account,
         txId,
         timestamp: new Date().toISOString(),
@@ -380,8 +389,8 @@ export default function StorePage() {
             shipping: 'Free',
             timestamp: new Date().toISOString(),
              // FIX 1 (Email): Add logo_url. 
-             // REPLACE THIS with your *full* public URL
-            logo_url: 'https://b3trbeach.com/assets/B3TRBEACHLogoBanner.JPEG' 
+             // YOU MUST REPLACE THIS with your *full* public URL
+            logo_url: 'https://your-website.com/assets/B3TRBEACHLogoBanner.JPEG' // <-- IMPORTANT: Update this URL
           };
           
           emailjs.send('B3TRBEACH', 'B3TRConfirm', emailPayload, '-yJ3RZmkCyvjwXcnb')
@@ -694,12 +703,11 @@ export default function StorePage() {
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const rect = cartButtonRef.current.getBoundingClientRect();
 
-    setDragStart({
-      mouseX: clientX,
-      mouseY: clientY,
-      cartX: cartPosition.x,
-      cartY: cartPosition.y,
+    setDragStartOffset({
+      x: clientX - rect.left,
+      y: clientY - rect.top,
     });
   };
 
@@ -709,26 +717,29 @@ export default function StorePage() {
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     
-    const deltaX = clientX - dragStart.mouseX;
-    const deltaY = clientY - dragStart.mouseY;
-
-    // We subtract deltaX from right, and deltaY from bottom
-    let newX = dragStart.cartX - deltaX;
-    let newY = dragStart.cartY - deltaY;
+    let newX = clientX - dragStartOffset.x;
+    let newY = clientY - dragStartOffset.y;
 
     // Constrain movement within the viewport
-    const buttonSize = 80; // Approx size of button + padding
-    newX = Math.min(Math.max(newX, 24), window.innerWidth - buttonSize); // 24px padding
-    newY = Math.min(Math.max(newY, 24), window.innerHeight - buttonSize); // 24px padding
+    const buttonWidth = cartButtonRef.current?.offsetWidth || 72; // 72px approx
+    const buttonHeight = cartButtonRef.current?.offsetHeight || 72;
+    const padding = 24; // 1.5rem
+
+    newX = Math.min(Math.max(newX, padding), window.innerWidth - buttonWidth - padding);
+    newY = Math.min(Math.max(newY, padding), window.innerHeight - buttonHeight - padding);
 
     setCartPosition({
       x: newX,
       y: newY,
     });
-  }, [isDragging, dragStart]);
+  }, [isDragging, dragStartOffset]);
 
   const handleDragEnd = useCallback(() => {
-    setIsDragging(false);
+    // Set dragging to false *after* a tiny delay,
+    // so the 'onClick' event can check its value and prevent firing.
+    setTimeout(() => {
+      setIsDragging(false);
+    }, 50);
   }, []);
 
   // Add global listeners for dragging
@@ -1145,14 +1156,18 @@ export default function StorePage() {
           onTouchStart={handleDragStart}
           onClick={() => {
             // Only trigger click if not dragging
-            if (!isDragging) {
-              setShowCartModal(true);
-            }
+            if (isDragging) {
+              // This click was the end of a drag, so reset drag state
+              setIsDragging(false); 
+              return;
+            };
+            // This was a true click, open the modal
+            setShowCartModal(true);
           }}
           style={{
             position: 'fixed',
-            right: `${cartPosition.x}px`,
-            bottom: `${cartPosition.y}px`,
+            left: `${cartPosition.x}px`,
+            top: `${cartPosition.y}px`,
             cursor: isDragging ? 'grabbing' : 'grab',
             touchAction: 'none', // Prevent page scroll while dragging
           }}
