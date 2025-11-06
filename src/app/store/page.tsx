@@ -114,7 +114,7 @@ interface CartModalProps {
 
 function CartModal({ cart, onClose, onAdjustQuantity, onCheckout, cartTotal }: CartModalProps) {
   return (
-    // FIX 1: Darkened backdrop
+    // FIX 2: Darkened backdrop
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <h3 className="text-2xl font-bold mb-4 text-center">Your Cart</h3>
@@ -216,6 +216,13 @@ export default function StorePage() {
   const b3trContractAddress = '0x5ef79995FE8a89e0812330E4378eB2660ceDe699';
   const b3trDecimals = 18;
 
+  // --- FIX 4: State for Draggable Cart ---
+  const [isDragging, setIsDragging] = useState(false);
+  const [cartPosition, setCartPosition] = useState({ x: 24, y: 24 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const cartButtonRef = useRef<HTMLButtonElement>(null);
+
+
   const lastRefetch = useRef(0);
   const debounceRefetch = useCallback((refetchFn: () => Promise<any>) => {
     const now = Date.now();
@@ -245,7 +252,7 @@ export default function StorePage() {
     }
   }, [beat, account, txId, transactionComplete, debounceRefetch]);
 
-  // FIX 2: Restored original working balance query
+  // FIX 1: Restored original working balance query
   const { data: balanceData, error: balanceError, refetch: initialRefetchB3TR } = useQuery({
     queryKey: ['b3trBalance', account],
     queryFn: async () => {
@@ -339,8 +346,8 @@ export default function StorePage() {
       setCart([]); // Clear the cart
 
       const newPurchase: Purchase = {
-        item: selectedProduct.name,
-        amount: selectedProduct.priceB3TR,
+        item: selectedProduct.name, // This is now "B3TR BEACH Order (X Items)"
+        amount: selectedProduct.priceB3TR, // This is the cartTotal
         account,
         txId,
         timestamp: new Date().toISOString(),
@@ -354,18 +361,20 @@ export default function StorePage() {
         .then(() => {
           console.log('Purchase recorded in Firebase');
           
-          // --- FIX 6: Send email with JS object (emailjs.send) ---
+          // --- FIX 1 (Email): Send correct variables to template ---
           const emailPayload = {
-            from_name: userDetails.name, // Use 'from_name' if your template expects it
+            from_name: userDetails.name,
             to_name: userDetails.name,
             email: userDetails.email,
             userEmail: userDetails.email,
-            to_email: userDetails.email, // Send to the user's email
+            to_email: userDetails.email,
             user_address: userDetails.address,
-            itemName: selectedProduct.name,
-            priceB3TR: `${selectedProduct.priceB3TR} B3TR`,
-            totalPriceB3TR: `${selectedProduct.priceB3TR} B3TR`,
-            transactionId: txId, // Now txId is available
+            // Use description for itemization, as it's "Item A (x1), Item B (x2)"
+            itemName: selectedProduct.description, 
+            // Use 'price' and 'totalPrice' to match the template {{price}}
+            price: `${selectedProduct.priceB3TR} B3TR`,
+            totalPrice: `${selectedProduct.priceB3TR} B3TR`,
+            transactionId: txId, 
             shipping: 'Free',
             timestamp: new Date().toISOString(),
           };
@@ -656,17 +665,64 @@ export default function StorePage() {
     }
   }, [isAdminLoggedIn]);
 
+  // FIX 4: Corrected ViewTx link logic
   const handleViewTxClick = useCallback(() => {
     if (!isAdminLoggedIn) {
       setShowLoginModal(true);
     } else {
-      window.location.href = '/transactions';
+      window.location.href = '/transactions'; // Navigate to transactions page
     }
   }, [isAdminLoggedIn]);
 
   const handleDisconnect = useCallback(() => {
     disconnect();
   }, [disconnect]);
+
+  // --- FIX 4: Draggable Cart Button Logic ---
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    setIsDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    setDragStart({
+      x: clientX - cartPosition.x,
+      y: clientY - cartPosition.y,
+    });
+  };
+
+  const handleDragMove = useCallback((e: MouseEvent | TouchEvent) => {
+    if (!isDragging) return;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
+    // Constrain movement within the viewport
+    const newX = Math.min(Math.max(clientX - dragStart.x, 24), window.innerWidth - 80); // 80 = button width + padding
+    const newY = Math.min(Math.max(clientY - dragStart.y, 24), window.innerHeight - 80); // 80 = button height + padding
+
+    setCartPosition({
+      x: newX,
+      y: newY,
+    });
+  }, [isDragging, dragStart]);
+
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // Add global listeners for dragging
+  useEffect(() => {
+    window.addEventListener('mousemove', handleDragMove);
+    window.addEventListener('mouseup', handleDragEnd);
+    window.addEventListener('touchmove', handleDragMove);
+    window.addEventListener('touchend', handleDragEnd);
+
+    return () => {
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+      window.removeEventListener('touchmove', handleDragMove);
+      window.removeEventListener('touchend', handleDragEnd);
+    };
+  }, [handleDragMove, handleDragEnd]);
+  
 
   return (
     <>
@@ -789,7 +845,7 @@ export default function StorePage() {
         {/* Login Modal */}
         {showLoginModal && (
           // FIX 1: Darkened backdrop
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
+          <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
               <h3 className="text-2xl font-bold mb-4">Admin Login</h3>
               <form onSubmit={handleAdminLogin}>
@@ -820,7 +876,7 @@ export default function StorePage() {
         {/* --- FIX 3: Restored original Manage Products Modals (with scroll fix) --- */}
         {/* Manage Products Modal (Add) */}
         {isAdminLoggedIn && showManageForm && !editProductId && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75 p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.75)' }}>
             {/* FIX 1: Added overflow-y-auto and max-h-[90vh] for mobile scrolling */}
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
               <h3 className="text-2xl font-bold mb-4 text-center">Manage Products - Add New</h3>
@@ -1058,10 +1114,23 @@ export default function StorePage() {
           </div>
         )}
 
-        {/* Floating Cart Button */}
+        {/* --- FIX 4: Draggable Cart Button --- */}
         <button
-          onClick={() => setShowCartModal(true)}
-          className="fixed bottom-6 right-6 bg-custom-blue text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-110 z-40"
+          ref={cartButtonRef}
+          onClick={() => {
+            if (!isDragging) {
+              setShowCartModal(true);
+            }
+          }}
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+          style={{
+            position: 'fixed',
+            right: `${cartPosition.x}px`,
+            bottom: `${cartPosition.y}px`,
+            cursor: isDragging ? 'grabbing' : 'grab',
+          }}
+          className="bg-custom-blue text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-40"
           aria-label="Open Cart"
         >
           <CartIcon />
