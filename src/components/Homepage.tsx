@@ -100,25 +100,15 @@ function Hero() {
           <h2 className="text-6xl text-amber-400 font-bold mb-4 text-outline-black">
             Our Mission to Become <span className="text-custom-blue">B3TR</span>
           </h2>
-          <p className="text-xl mb-6">
-            𝐖𝐞𝐥𝐜𝐨𝐦𝐞 𝐭𝐨 <span className="text-custom-blue">𝐁𝟑𝐓𝐑 </span>
-            <span className="text-amber-400">𝐁𝐄𝐀𝐂𝐇</span>! 🏝️
-            𝐎𝐮𝐫 𝐌𝐢𝐬𝐬𝐢𝐨𝐧 𝐢𝐬 𝐭𝐨 𝐜𝐨𝐦𝐛𝐚𝐭 𝐛𝐞𝐚𝐜𝐡 𝐩𝐨𝐥𝐥𝐮𝐭𝐢𝐨𝐧 𝐚𝐧𝐝 𝐩𝐫𝐨𝐭𝐞𝐜𝐭 𝐦𝐚𝐫𝐢𝐧𝐞 𝐞𝐜𝐨𝐬𝐲𝐬𝐭𝐞𝐦𝐬 𝐭𝐡𝐫𝐨𝐮𝐠𝐡 𝐚 𝐝𝐞𝐜𝐲𝐧𝐭𝐫𝐚𝐥𝐢𝐳𝐞𝐝 “𝐂𝐥𝐞𝐚𝐧 𝐭𝐨 𝐄𝐚𝐫𝐧” 𝐦𝐨𝐝𝐞𝐥 𝐩𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲
-            <span className="text-custom-blue">𝐁𝟑𝐓𝐑</span>.
-            𝐖𝐞 𝐚𝐢𝐦 𝐭𝐨 𝐢𝐧𝐜𝐞𝐧𝐭𝐢𝐯𝐢𝐳𝐞 𝐠𝐥𝐨𝐛𝐚𝐥 𝐜𝐨𝐦𝐦𝐮𝐧𝐢𝐭𝐢𝐞𝐬 𝐭𝐨 𝐫𝐞𝐦𝐨𝐯𝐞 𝐦𝐚𝐫𝐢𝐧𝐞 𝐝𝐞𝐛𝐫𝐢𝐬, 𝐩𝐫𝐞𝐯𝐞𝐧𝐭 𝐦𝐢𝐜𝐫𝐨𝐩𝐥𝐚𝐬𝐭𝐢𝐜 𝐩𝐨𝐥𝐥𝐮𝐭𝐢𝐨𝐧, 𝐚𝐧𝐝 𝐫𝐞𝐬𝐭𝐨𝐫𝐞 𝐜𝐨𝐚𝐬𝐭𝐚𝐥 𝐡𝐚𝐛𝐢𝐭𝐚𝐭𝐬 𝐛𝐲 𝐢𝐧𝐜𝐞𝐧𝐭𝐢𝐯𝐢𝐳𝐢𝐧𝐠 𝐮𝐬𝐞𝐫𝐬 𝐭𝐨 𝐚𝐬𝐬𝐢𝐬𝐭 𝐢𝐧 𝐭𝐡𝐞 𝐜𝐥𝐞𝐚𝐧 𝐮𝐩 𝐞𝐟𝐟𝐨𝐫𝐭𝐬 𝐚𝐧𝐝 𝐞𝐦𝐩𝐨𝐰𝐞𝐫 𝐢𝐧𝐝𝐢𝐯𝐢𝐝𝐮𝐚𝐥𝐬 𝐭𝐨 𝐝𝐫𝐢𝐯𝐞 𝐥𝐚𝐬𝐭𝐢𝐧𝐠 𝐞𝐧𝐯𝐢𝐫𝐨𝐧𝐦𝐞𝐧𝐭𝐚𝐥 𝐢𝐦𝐩𝐚𝐜𝐭.
-            𝐄𝐧𝐣𝐨𝐲𝐢𝐧𝐠 𝐚 𝐝𝐚𝐲 𝐚𝐭 𝐭𝐡𝐞 𝐛𝐞𝐚𝐜𝐡 𝐚𝐥𝐥 𝐭𝐡𝐞 𝐰𝐡𝐢𝐥𝐞 𝐜𝐨𝐧𝐭𝐫𝐢𝐛𝐮𝐭𝐢𝐧𝐠 𝐭𝐨 𝐚 𝐫𝐞𝐚𝐥 𝐬𝐮𝐬𝐭𝐚𝐢𝐧𝐚𝐛𝐥𝐞 𝐜𝐚𝐮𝐬𝐞 𝐛𝐲 𝐝𝐨𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐩𝐚𝐫𝐭 𝐚𝐧𝐝 𝐦𝐚𝐤𝐢𝐧𝐠 𝐨𝐮𝐫 𝐛𝐞𝐚𝐜𝐡𝐞𝐬
-            <span className="text-custom-blue">𝐁𝟑𝐓𝐑</span>.
+          <p className="text-2xl mb-6">
+            Welcome to <span className="text-custom-blue">B3TR </span>
+            <span className="text-amber-400">Beach</span>! 🏝️
+            Our Mission is to combat beach, river, stream and park pollution and protect marine and land ecosystems through a decentralized “Clean to Earn” initiative that rewards real-world impact for the
+            <span className="text-custom-blue text-outline-black"> B3TR</span>.  We promote and feature organizations making a difference — locally and globally. We facilitate, collaborate and act as a central environmental fund, raising capital and awareness to support community-led
+outreach programs dedicated to cleaning beaches, parks, rivers, and any natural habitats impacted by waste. Educating through clean up events to help spread awareness, and to showcase our Proof of Work.  We always have been about action as we feel everyone can do just a small part to make a big difference.   Our vision is a world with pristine natural environments where local communities are empowered and funded to protect their ecosystems, ensuring wildlife can  thrive in a clean and healthy world. Our mascot characters (Ranger Bear & Inky the Octopus) help make education fun and relatable for kids and appeal to anyone in between.  In order to do B3TR we must KNOW B3TR.  Educate, Demonstrate, Collaborate is the mindset we carry for success. With your help we can truly make our planet B3TR.
             <br />
-            𝐓𝐡𝐚𝐧𝐤 𝐲𝐨𝐮 𝐟𝐨𝐫 𝐣𝐨𝐢𝐧𝐢𝐧𝐠 𝐮𝐬 🤟🏽.
+            Thank You for Joining Us! 🤟🏽.
           </p>
-          <div className="flex justify-center mt-6">
-            <a
-              href="/instructions"
-              className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
-            >
-              Get Started
-            </a>
-          </div>
         </div>
       </div>
     </section>
@@ -142,6 +132,18 @@ function Features() {
           <h2 className="text-6xl text-amber-400 font-bold mb-12 text-outline-black">
             Why Choose <span className="text-custom-blue">B3TR</span> BEACH
           </h2>
+         <div className="mb-2 p-16 flex justify-center">
+	<div className="bg-custom-blue p-4 rounded-xl shadow w-full max-w-2xl">
+              <a
+                href="/mission"
+                className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black">
+                What We Do B3TR
+              </a>
+              <p className="mt-2 text-white text-xl">
+                Here's a glimpse of what we do first hand! Putting our actions where our mouth is! 
+              </p>
+            </div>
+</div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-custom-blue p-4 rounded-lg shadow">
               <a
@@ -150,8 +152,8 @@ function Features() {
               >
                 Clean Up Events
               </a>
-              <p className="mt-2 text-white">
-                𝐄𝐧𝐠𝐚𝐠𝐞 𝐰𝐢𝐭𝐡 𝐜𝐮𝐫𝐚𝐭𝐞𝐝 𝐜𝐨𝐦𝐦𝐮𝐧𝐢𝐭𝐲 𝐞𝐯𝐞𝐧𝐭𝐬 𝐭𝐡𝐫𝐨𝐮𝐠𝐡 𝐚 𝐬𝐢𝐦𝐩𝐥𝐞, 𝐠𝐚𝐦𝐢𝐟𝐢𝐞𝐝 𝐬𝐲𝐬𝐭𝐞𝐦 𝐰𝐢𝐭𝐡 𝐣𝐮𝐬𝐭 𝐭𝐡𝐫𝐞𝐞 𝐚𝐜𝐭𝐢𝐨𝐧𝐬 𝐩𝐞𝐫 𝐝𝐚𝐲.
+              <p className="mt-2 text-white text-xl">
+                Engage with curated community events sponsored by us and/or our partners and directly helping to educate and reward for real impact
               </p>
             </div>
             <div className="bg-custom-blue p-4 rounded-lg shadow">
@@ -161,8 +163,8 @@ function Features() {
               >
                 B3TR Rewards
               </a>
-              <p className="mt-2 text-white">
-                𝐄𝐚𝐫𝐧 𝐗𝐏 𝐩𝐨𝐢𝐧𝐭𝐬 𝐚𝐭 𝐞𝐯𝐞𝐧𝐭𝐬, 𝐫𝐞𝐝𝐞𝐞𝐦𝐚𝐛𝐥𝐞 𝐟𝐨𝐫 <span className="text-amber-400">𝐁𝟑𝐓𝐑</span> 𝐭𝐨𝐤𝐞𝐧𝐬 𝐨𝐫 𝐝𝐢𝐬𝐜𝐨𝐮𝐧𝐭𝐬 𝐨𝐧 𝐥𝐢𝐦𝐢𝐭𝐞𝐝-𝐞𝐝𝐢𝐭𝐢𝐨𝐧 <span className="text-amber-400">𝐁𝟑𝐓𝐑</span> 𝐁𝐄𝐀𝐂𝐇 𝐦𝐞𝐫𝐜𝐡𝐚𝐧𝐝𝐢𝐬𝐞.
+              <p className="mt-2 text-white text-xl">
+                Earn XP Points and rewards at events that are redeemable for <span className="text-custom-blue text-outline-black">B3TR</span>  <span className="text-amber-400">𝐁EACH</span>  merchandise. 75% of all net proceeds go directly towards clean up events(including tools and equipment) and initiatives to continue our planetary duty to the environment!
               </p>
             </div>
             <div className="bg-custom-blue p-4 rounded-lg shadow">
@@ -172,12 +174,14 @@ function Features() {
               >
                 Adopt-A-Beach/Park
               </a>
-              <p className="mt-2 text-white">
-                Want to make an even <span className="text-amber-400">𝐁𝟑𝐓𝐑</span> lasting impact? Become an Adopter! Own a piece of beach, river, lake, or park
-                and be apart of the soultion!
+              <p className="mt-2 text-white text-xl">
+                Want to make an even <span className="text-amber-400">B3TR</span> lasting impact? Become an Adopter! Own a piece of beach, river, lake, or park
+                and be apart of the solution!
               </p>
               <p className="text-amber-400 text-3xl">COMING SOON...</p>
+	    
             </div>
+	<p className="p-8"></p>
           </div>
         </div>
       </div>
@@ -207,12 +211,12 @@ function Sponsors() {
     >
       <div className="container mx-auto px-4">
         <div className="fade-content">
-          <h2 className="text-center text-6xl text-amber-400 font-bold mb-12 text-outline-black">
+          <h2 className="text-center text-6xl text-amber-400 font-bold mb-8 text-outline-black">
             Our Sponsor Partners
           </h2>
-          <p className="text-center mb-8 text-amber-400 text-outline-blue">
+          <p className="text-center mb-16 text-amber-400 text-outline-black text-2xl">
             We partner with local and eco-conscious brands to bring you the best events. Interested in sponsoring?{' '}
-            <a href="mailto:sponsors@b3trbeach.com" className="text-custom-blue">
+            <a href="mailto:b3tr.beach@gmail.com" className="text-custom-black">
               Contact us
             </a>
             .
@@ -223,6 +227,7 @@ function Sponsors() {
             <div className="bg-white p-4 rounded-lg shadow text-center">Forest and Beach</div>
             <div className="bg-white p-4 rounded-lg shadow text-center">Turtle Labs</div>
           </div>
+	<p className="p-8"></p>
         </div>
         {showError && (
           <div className="error-message visible text-white bg-red-600 p-4 rounded absolute top-4 left-4 z-10">
@@ -253,15 +258,21 @@ function Download() {
             Download the <span className="text-custom-blue">VeWorld</span> App and{' '}
             <span className="text-custom-blue text-outline-black">B3TR</span> BEACH App (Coming Soon)
           </h2>
-          <p className="text-lg mb-6">
+          <p className="text-xl mb-6">
             Available on iOS and Android. Start exploring events, earning rewards, and joining the{' '}
             <span className="text-custom-blue text-outline-black">B3TR</span> ecosystem!
           </p>
+	<div className="flex justify-center mt-6">
+            <a href="/instructions"
+              className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 mb-2 rounded-lg text-outline-black">
+              Get Started
+            </a>
+	
+	</div>
           <div className="flex justify-center space-x-4">
             <a
               href="https://apps.apple.com/us/app/veworld/id6446854569"
-              className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
-            >
+              className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black">
               App Store
             </a>
             <a
@@ -286,7 +297,7 @@ function Download() {
 // --- Footer ---
 function Footer() {
   return (
-    <footer className="bg-amber-400 py-6 text-center wave-top">
+    <footer className="bg-amber-400 py-10 text-center wave-top">
       <div className="container mx-auto px-4">
         <div className="fade-content">
           <p className="text-xl mb-4">
@@ -299,7 +310,7 @@ function Footer() {
             <a href="#" className="text-white hover:text-amber-400">
               Terms of Service
             </a>
-            <a href="mailto:support@b3trbeach.com" className="text-white hover:text-amber-400">
+            <a href="mailto:b3tr.beach@gmail.com" className="text-white hover:text-amber-400">
               Contact Us
             </a>
           </div>
