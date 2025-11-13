@@ -9,9 +9,15 @@ module.exports = {
       colors: {
         'custom-blue': '#0C84C4',
         'amber-400': '#fbbf24',
-        'green-500': '#22c55e'
-      }
-    }
+        'green-500': '#22c55e',
+        teal: {
+          300: '#a8e6cf',
+        },
+      },
+      fontFamily: {
+        playfair: ['"Playfair Display"', 'serif'],
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 };
