@@ -81,7 +81,6 @@ const rangerFacts = [// Bad Facts (Land/Parks)
 ];
 
 const inkyIdleGif = "/assets/InkyOcto.gif";
-const inkyIdleGif = '/assets/InkyOcto.gif';
 const inkyFactGifs = [
   '/assets/InkyGig1.gif',
   '/assets/InkyGif2.gif',
