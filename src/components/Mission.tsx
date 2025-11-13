@@ -37,7 +37,7 @@ export default function Mission() {
     <>
       {/* ==== MAIN SECTION ==== */}
       <section
-        className="relative min-h-screen bg-contain bg-center bg-fixed py-32 text-white overflow-x-hidden"
+        className="relative min-h-screen bg-cover bg-center bg-fixed py-32 text-white overflow-x-hidden"
         style={{ backgroundImage: "url('/assets/InkyandRanger.png')" }}
       >
         <div className="absolute inset-0 bg-black/50 z-10" />
