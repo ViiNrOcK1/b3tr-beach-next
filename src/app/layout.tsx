@@ -1,4 +1,6 @@
 // src/app/layout.tsx
+'use client'; // ← THIS IS REQUIRED
+
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -7,13 +9,13 @@ import { APP_DESCRIPTION } from './config';
 
 // 1. Import the mascot component and all the data
 import DraggableMascot from '@/components/DraggableMascot';
-import { 
-  inkyFacts, 
-  rangerFacts, 
-  inkyIdleGif, 
-  inkyFactGifs, 
-  rangerIdleGif, 
-  rangerFactGifs 
+import {
+  inkyFacts,
+  rangerFacts,
+  inkyIdleGif,
+  inkyFactGifs,
+  rangerIdleGif,
+  rangerFactGifs
 } from '@/lib/mascots';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
@@ -30,9 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <DAppKitProviderWrapper>
           {children}
 
-          {/* 2. Add the mascots directly here. 
-            We removed the broken MascotsWrapper. 
-          */}
+          {/* 2. MASCOTS: Now they will render and be draggable */}
           <DraggableMascot
             idleImageSrc={inkyIdleGif}
             factImageSrcs={inkyFactGifs}
@@ -49,7 +49,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             initialPosition={{ x: 150, y: 350 }}
             animationType="slide"
           />
-
         </DAppKitProviderWrapper>
       </body>
     </html>
