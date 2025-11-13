@@ -1,12 +1,18 @@
 // src/components/Mission.tsx
 'use client';
-
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 
 export default function Mission() {
   // Use HTMLElement[] to support <div>, <h2>, etc.
   const sectionRefs = useRef<HTMLElement[]>([]);
+
+  // Type-safe ref handler
+  const addRef = (el: HTMLElement | null) => {
+    if (el && !sectionRefs.current.includes(el)) {
+      sectionRefs.current.push(el);
+    }
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -36,11 +42,10 @@ export default function Mission() {
       >
         <div className="absolute inset-0 bg-black/50 z-10" />
         <div className="relative z-20 container mx-auto px-6 max-w-7xl">
-
           {/* The Bad... */}
           <h2
             className="text-5xl md:text-6xl font-playfair font-bold mb-20"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             {"The Bad...".split('').map((char, index) => (
               <span
@@ -56,7 +61,7 @@ export default function Mission() {
           {/* Row 1 */}
           <div
             className="flex flex-col md:flex-row items-center gap-12 mb-32 opacity-0 translate-x-[-60px] transition-all duration-1000"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             <div className="flex-1">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -74,7 +79,7 @@ export default function Mission() {
           {/* Row 2 */}
           <div
             className="flex flex-col md:flex-row-reverse items-center gap-12 mb-32 opacity-0 translate-x-[60px] transition-all duration-1000"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             <div className="flex-1">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -92,7 +97,7 @@ export default function Mission() {
           {/* Row 3 */}
           <div
             className="flex flex-col md:flex-row items-center gap-12 mb-32 opacity-0 translate-x-[-60px] transition-all duration-1000"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             <div className="flex-1">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -110,7 +115,7 @@ export default function Mission() {
           {/* The Ugly... */}
           <h2
             className="text-5xl md:text-6xl font-playfair font-bold mb-20"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             {"The Ugly...".split('').map((char, index) => (
               <span
@@ -126,7 +131,7 @@ export default function Mission() {
           {/* Row 4 */}
           <div
             className="flex flex-col md:flex-row-reverse items-center gap-12 mb-32 opacity-0 translate-x-[60px] transition-all duration-1000"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             <div className="flex-1">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -144,7 +149,7 @@ export default function Mission() {
           {/* Row 5 */}
           <div
             className="flex flex-col md:flex-row items-center gap-12 mb-32 opacity-0 translate-x-[-60px] transition-all duration-1000"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             <div className="flex-1">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -162,7 +167,7 @@ export default function Mission() {
           {/* The Good... */}
           <h2
             className="text-5xl md:text-6xl font-playfair font-bold mb-20 text-right"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             {"The Good...".split('').map((char, index) => (
               <span
@@ -178,7 +183,7 @@ export default function Mission() {
           {/* Row 6 */}
           <div
             className="flex flex-col md:flex-row-reverse items-center gap-12 mb-32 opacity-0 translate-x-[60px] transition-all duration-1000"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             <div className="flex-1">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -201,7 +206,7 @@ export default function Mission() {
           {/* Row 7 */}
           <div
             className="flex flex-col md:flex-row items-center gap-12 mb-32 opacity-0 translate-x-[-60px] transition-all duration-1000"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             <div className="flex-1">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -223,7 +228,7 @@ export default function Mission() {
           {/* Row 8 */}
           <div
             className="flex flex-col md:flex-row-reverse items-center gap-12 mb-32 opacity-0 translate-x-[60px] transition-all duration-1000"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             <div className="flex-1">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -250,7 +255,7 @@ export default function Mission() {
           {/* CTA Buttons */}
           <div
             className="text-center mt-20 space-x-6 opacity-0 translate-y-10 transition-all duration-1000"
-            ref={(el) => el && sectionRefs.current.push(el)}
+            ref={addRef}
           >
             <a href="/" className="inline-block bg-teal-300 text-gray-900 font-bold py-4 px-8 rounded-full hover:bg-white transition-all shadow-lg hover:shadow-xl">
               Home Page
@@ -259,7 +264,6 @@ export default function Mission() {
               Donate Now
             </a>
           </div>
-
         </div>
       </section>
 
@@ -283,9 +287,8 @@ export default function Mission() {
           transform: translateX(0) translateY(0) !important;
         }
         .font-playfair { font-family: 'Playfair Display', serif; }
-
         @keyframes wave {
-          0%   { background-position-x: 0; }
+          0% { background-position-x: 0; }
           100% { background-position-x: 1440px; }
         }
         .fade-content {
@@ -293,7 +296,7 @@ export default function Mission() {
         }
         @keyframes fade-in {
           from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
+          to { opacity: 1; transform: translateY(0); }
         }
         .text-custom-blue {
           color: #0d47a1;
