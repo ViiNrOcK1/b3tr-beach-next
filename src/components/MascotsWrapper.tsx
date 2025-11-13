@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import DraggableMascot from '@/components/DraggableMascot';
-import { inkyFacts, rangerFacts, inkyIdleGif, inkyFactGifs, rangerIdleGif, rangerFactGifs } from '@/app/layout';
+import { inkyFacts, rangerFacts, inkyIdleGif, inkyFactGifs, rangerIdleGif, rangerFactGifs } from '@/lib/mascots';
 
 export default function MascotsWrapper() {
   const [show, setShow] = useState(false);
@@ -16,7 +16,7 @@ export default function MascotsWrapper() {
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 right-6 flex justify-center gap-8 pointer-events-none">
+    <div className="fixed bottom-6 left-6 right-6 flex justify-center gap-8 pointer-events-none z-50">
       <div className="pointer-events-auto animate-fadeIn">
         <DraggableMascot
           idleImageSrc={inkyIdleGif}
