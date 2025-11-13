@@ -1,13 +1,10 @@
 // src/app/layout.tsx
-'use client'; // ← THIS IS REQUIRED
+'use client';
 
-import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import DAppKitProviderWrapper from './DAppKitProviderWrapper';
 import { APP_DESCRIPTION } from './config';
-
-// 1. Import the mascot component and all the data
 import DraggableMascot from '@/components/DraggableMascot';
 import {
   inkyFacts,
@@ -21,8 +18,18 @@ import {
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
-export const metadata: Metadata = { title: 'B3TR BEACH', description: APP_DESCRIPTION };
-export const viewport = { width: 'device-width', initialScale: 1 };
+// Dynamic metadata (allowed in 'use client')
+export async function generateMetadata() {
+  return {
+    title: 'B3TR BEACH',
+    description: APP_DESCRIPTION,
+  };
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -32,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <DAppKitProviderWrapper>
           {children}
 
-          {/* 2. MASCOTS: Now they will render and be draggable */}
+          {/* MASCOTS: Now they render! */}
           <DraggableMascot
             idleImageSrc={inkyIdleGif}
             factImageSrcs={inkyFactGifs}
