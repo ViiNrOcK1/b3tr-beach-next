@@ -1,6 +1,6 @@
 // src/lib/mascots.ts
 export const inkyFacts = [
-  // Bad Facts (Ocean)
+    // Bad Facts (Ocean)
   'Plastic bags look like jellyfish, my favorite food! Eating them can be fatal for me and my turtle friends.',
   'Every year, over 100,000 marine mammals and 1 million seabirds die from plastic ingestion or entanglement.',
   'Microplastics have been found in the deepest part of the ocean, the Mariana Trench.',
@@ -32,7 +32,8 @@ export const inkyFacts = [
   'Sea otters hold hands while they sleep so they don\'t drift apart.',
   'Dolphins have names for each other, using unique whistles to call individuals.',
   'Every B3TR cleanup helps me and my friends directly. Thank you for your support!',
-] as const;
+];
+] satisfies string[]; // ← Use `satisfies` instead of `as const`
 
 export const rangerFacts = [
   // Bad Facts (Land/Parks)
@@ -67,7 +68,9 @@ export const rangerFacts = [
   'Reusable shopping bags can save over 500 plastic bags per person, per year.',
   'By properly disposing of waste, you are directly protecting the homes of animals like me. Keep up the great work!',
   'B3TR Beach cleanups turn your effort into real-world results, removing thousands of pounds of trash from our communities.',
-] as const;
+];
+
+] satisfies string[];
 
 export const inkyIdleGif = "/assets/InkyOcto.gif";
 export const inkyFactGifs = [
@@ -75,7 +78,7 @@ export const inkyFactGifs = [
   '/assets/InkyGif2.gif',
   '/assets/InkyGif3.gif',
   '/assets/InkyGif4.gif',
-] as const;
+] satisfies string[]; // ← mutable string[]
 
 export const rangerIdleGif = "/assets/RangerBear.gif";
 export const rangerFactGifs = [
@@ -85,4 +88,4 @@ export const rangerFactGifs = [
   '/assets/RangerBearGif3.gif',
   '/assets/RangerBearGif4.gif',
   '/assets/RangerBearGif5.gif',
-] as const;
+] satisfies string[];
