@@ -71,7 +71,7 @@ export const rangerFacts = [
 
 export const inkyIdleGif = "/assets/InkyOcto.gif";
 export const inkyFactGifs = [
-  '/assets/InkyGig1.gif',
+  '/assets/InkyGif1.gif',
   '/assets/InkyGif2.gif',
   '/assets/InkyGif3.gif',
   '/assets/InkyGif4.gif',
@@ -79,10 +79,10 @@ export const inkyFactGifs = [
 
 export const rangerIdleGif = "/assets/RangerBear.gif";
 export const rangerFactGifs = [
-  '/assets/RangerBearGif6.gif',
-  '/assets/RangerBearGif1.gif',
-  '/assets/RangerBearGif2.gif',
-  '/assets/RangerBearGif3.gif',
-  '/assets/RangerBearGif4.gif',
-  '/assets/RangerBearGif5.gif',
+  '/assets/RangerGif6.gif',
+  '/assets/RangerGif1.gif',
+  '/assets/RangerGif2.gif',
+  '/assets/RangerGif3.gif',
+  '/assets/RangerGif4.gif',
+  '/assets/RangerGif5.gif',
 ] satisfies string[];
