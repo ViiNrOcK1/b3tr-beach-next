@@ -1,127 +1,243 @@
 // src/components/DraggableMascot.tsx
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect, MouseEvent } from 'react';
 import Image from 'next/image';
 
-interface DraggableMascotProps {
+type MascotProps = {
   idleImageSrc: string;
   factImageSrcs: string[];
   altText: string;
   facts: string[];
-  initialPosition: { x: number; y: number };
-  animationType: 'jump' | 'slide';
-}
+  initialPosition?: { x: number; y: number };
+  animationType: 'jump' | 'slide' | 'none';
+};
 
 export default function DraggableMascot({
   idleImageSrc,
   factImageSrcs,
   altText,
   facts,
-  initialPosition,
-  animationType,
-}: DraggableMascotProps) {
+  initialPosition = { x: 50, y: 150 },
+  animationType = 'none',
+}: MascotProps) {
   const [position, setPosition] = useState(initialPosition);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [currentFact, setCurrentFact] = useState<string | null>(null);
-  const [factImage, setFactImage] = useState<string | null>(null);
   const [showFact, setShowFact] = useState(false);
+  const [currentFact, setCurrentFact] = useState(facts[0]);
+  const [currentImage, setCurrentImage] = useState(idleImageSrc);
+  const factAnimationTimer = useRef<NodeJS.Timeout | null>(null);
   const mascotRef = useRef<HTMLDivElement>(null);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const hasDragged = useRef(false);
 
-  // Random fact + image
-  const showRandomFact = () => {
-    const randomIndex = Math.floor(Math.random() * facts.length);
-    setCurrentFact(facts[randomIndex]);
-    setFactImage(factImageSrcs[randomIndex % factImageSrcs.length]);
+  const showNewFact = () => {
+    const randomFact = facts[Math.floor(Math.random() * facts.length)];
+    setCurrentFact(randomFact);
     setShowFact(true);
-    setTimeout(() => setShowFact(false), 5000);
+
+    if (factAnimationTimer.current) {
+      clearTimeout(factAnimationTimer.current);
+    }
+
+    if (factImageSrcs && factImageSrcs.length > 0) {
+      const randomFactImage =
+        factImageSrcs[Math.floor(Math.random() * factImageSrcs.length)];
+      setCurrentImage(randomFactImage);
+
+      factAnimationTimer.current = setTimeout(() => {
+        setCurrentImage(idleImageSrc);
+        factAnimationTimer.current = null;
+      }, 4000); // 4-second reaction
+    }
   };
 
-  // Mouse/Touch drag handlers
-  const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
+  const onMouseDown = (e: MouseEvent<HTMLDivElement>) => {
     setIsDragging(true);
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    setDragOffset({
-      x: clientX - position.x,
-      y: clientY - position.y,
-    });
+    hasDragged.current = false;
+    const rect = mascotRef.current!.getBoundingClientRect();
+    dragOffset.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
   };
 
-  const handleMove = (e: MouseEvent | TouchEvent) => {
-    if (!isDragging) return;
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    setPosition({
-      x: clientX - dragOffset.x,
-      y: clientY - dragOffset.y,
-    });
-  };
-
-  const handleEnd = () => {
+  const onMouseUp = () => {
     setIsDragging(false);
+    if (!hasDragged.current) {
+      showNewFact();
+    }
+  };
+
+  const onMouseMove = (e: globalThis.MouseEvent) => {
+    if (!isDragging) return;
+    hasDragged.current = true;
+    setPosition({
+      x: e.clientX - dragOffset.current.x,
+      y: e.clientY - dragOffset.current.y,
+    });
   };
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMove);
-      document.addEventListener('mouseup', handleEnd);
-      document.addEventListener('touchmove', handleMove);
-      document.addEventListener('touchend', handleEnd);
-      return () => {
-        document.removeEventListener('mousemove', handleMove);
-        document.removeEventListener('mouseup', handleEnd);
-        document.removeEventListener('touchmove', handleMove);
-        document.removeEventListener('touchend', handleEnd);
-      };
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
     }
-  }, [isDragging, dragOffset]);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [isDragging]);
 
-  // Animation class
-  const animationClass = animationType === 'jump' ? 'animate-jumpIn' : 'animate-slideIn';
+  useEffect(() => {
+    if (!factAnimationTimer.current) {
+      setCurrentImage(idleImageSrc);
+    }
+  }, [idleImageSrc]);
+
+  const animationClass =
+    animationType === 'jump'
+      ? 'jump-in'
+      : animationType === 'slide'
+      ? 'slide-in'
+      : '';
 
   return (
     <>
-      {/* Mascot */}
       <div
         ref={mascotRef}
-        className={`fixed w-32 h-32 cursor-grab active:cursor-grabbing transition-all duration-300 z-50 ${animationClass} ${isDragging ? 'opacity-80' : 'opacity-100'}`}
-        style={{ left: `${position.x}px`, top: `${position.y}px` }}
-        onMouseDown={handleStart}
-        onTouchStart={handleStart}
-        onClick={(e) => {
-          e.stopPropagation();
-          showRandomFact();
+        className={`mascot-container ${animationClass}`}
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          cursor: isDragging ? 'grabbing' : 'grab',
         }}
+        onMouseDown={onMouseDown}
       >
+        {showFact && (
+          <div className="fact-bubble">
+            <button className="close-btn" onClick={() => setShowFact(false)}>
+              &times;
+            </button>
+            <p>{currentFact}</p>
+          </div>
+        )}
         <Image
-          src={idleImageSrc}
+          src={currentImage}
           alt={altText}
-          width={128}
-          height={128}
-          className="w-full h-full object-contain drop-shadow-lg"
-          draggable={false}
+          width={100}
+          height={100}
+          className="mascot-image"
+          unoptimized // Important for GIFs
         />
       </div>
 
-      {/* Fact Bubble */}
-      {showFact && currentFact && factImage && (
-        <div
-          className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 max-w-sm shadow-2xl z-50 animate-fadeIn"
-          style={{ pointerEvents: 'none' }}
-        >
-          <Image
-            src={factImage}
-            alt="Fact"
-            width={200}
-            height={200}
-            className="w-full h-auto rounded-lg mb-3"
-          />
-          <p className="text-center text-gray-800 font-medium">{currentFact}</p>
-        </div>
-      )}
+      {/* This CSS has the correct animations */}
+      <style jsx>{`
+        /* --- Entrance Animations --- */
+        @keyframes jump-in {
+          0% {
+            transform: translateY(300px) scale(0.8);
+            opacity: 0;
+          }
+          60% {
+            transform: translateY(-20px) scale(1.05);
+            opacity: 1;
+          }
+          80% {
+            transform: translateY(10px) scale(0.95);
+          }
+          100% {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+          }
+        }
+        @keyframes slide-in {
+          0% {
+            transform: translateX(-300px);
+            opacity: 0;
+          }
+          100% {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        .jump-in {
+          animation: jump-in 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+          animation-delay: 0.5s; /* This is the delay, NOT 5 seconds */
+        }
+        .slide-in {
+          animation: slide-in 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+          animation-delay: 0.5s;
+        }
+
+        /* --- Main Component Styles --- */
+        .mascot-container {
+          position: fixed;
+          z-index: 9999; /* High z-index */
+          user-select: none;
+          transition: transform 0.1s ease-out;
+          opacity: 0; /* Start invisible */
+          animation-fill-mode: forwards;
+          will-change: transform, opacity;
+        }
+        .mascot-container:active {
+          transform: scale(1.05);
+        }
+        .mascot-image {
+          pointer-events: none;
+        }
+        .fact-bubble {
+          position: absolute;
+          bottom: 90%;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 250px;
+          background-color: white;
+          color: #333;
+          border-radius: 12px;
+          padding: 16px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          border: 2px solid #facc15;
+          z-index: 1001;
+        }
+        .fact-bubble p {
+          margin: 0;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+        .fact-bubble::after {
+          content: '';
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          border-width: 10px;
+          border-style: solid;
+          border-color: #facc15 transparent transparent transparent;
+        }
+        .close-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: #eee;
+          border: none;
+          border-radius: 50%;
+          width: 20px;
+          height: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          font-weight: bold;
+          color: #777;
+          cursor: pointer;
+        }
+        .close-btn:hover {
+          background: #ddd;
+          color: #000;
+        }
+      `}</style>
     </>
   );
 }
