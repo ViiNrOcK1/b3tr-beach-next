@@ -79,7 +79,7 @@ export const inkyFactGifs = [
 
 export const rangerIdleGif = "/assets/RangerBear.gif";
 export const rangerFactGifs = [
-  '/assets/RangerBearGif.gif',
+  '/assets/RangerBearGif6.gif',
   '/assets/RangerBearGif1.gif',
   '/assets/RangerBearGif2.gif',
   '/assets/RangerBearGif3.gif',
