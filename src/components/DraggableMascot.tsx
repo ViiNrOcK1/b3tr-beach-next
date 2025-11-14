@@ -1,187 +1,127 @@
 // src/components/DraggableMascot.tsx
 'use client';
 
-import { useState, useRef, useEffect, MouseEvent } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 
-// --- CHANGED: Updated props ---
-type MascotProps = {
-  idleImageSrc: string; // Renamed from imageSrc
-  factImageSrcs: string[]; // NEW: An array of GIFs for reactions
+interface DraggableMascotProps {
+  idleImageSrc: string;
+  factImageSrcs: string[];
   altText: string;
   facts: string[];
-  initialPosition?: { x: number; y: number };
-  animationType: 'jump' | 'slide' | 'none';
-};
+  initialPosition: { x: number; y: number };
+  animationType: 'jump' | 'slide';
+}
 
 export default function DraggableMascot({
-  idleImageSrc, // CHANGED
-  factImageSrcs, // NEW
+  idleImageSrc,
+  factImageSrcs,
   altText,
   facts,
-  initialPosition = { x: 50, y: 150 },
-  animationType = 'none',
-}: MascotProps) {
+  initialPosition,
+  animationType,
+}: DraggableMascotProps) {
   const [position, setPosition] = useState(initialPosition);
   const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [currentFact, setCurrentFact] = useState<string | null>(null);
+  const [factImage, setFactImage] = useState<string | null>(null);
   const [showFact, setShowFact] = useState(false);
-  const [currentFact, setCurrentFact] = useState(facts[0]);
-
-  // --- NEW: State to manage the current GIF ---
-  const [currentImage, setCurrentImage] = useState(idleImageSrc);
-  
-  // --- NEW: Ref to manage the animation timer ---
-  const factAnimationTimer = useRef<NodeJS.Timeout | null>(null);
-
-  // Refs to handle drag logic
   const mascotRef = useRef<HTMLDivElement>(null);
-  const dragOffset = useRef({ x: 0, y: 0 });
-  const hasDragged = useRef(false);
 
-  // --- CHANGED: Updated showNewFact function ---
-  const showNewFact = () => {
-    // 1. Pick and show the fact
-    const randomFact = facts[Math.floor(Math.random() * facts.length)];
-    setCurrentFact(randomFact);
+  // Random fact + image
+  const showRandomFact = () => {
+    const randomIndex = Math.floor(Math.random() * facts.length);
+    setCurrentFact(facts[randomIndex]);
+    setFactImage(factImageSrcs[randomIndex % factImageSrcs.length]);
     setShowFact(true);
-
-    // 2. Clear any existing animation timer
-    if (factAnimationTimer.current) {
-      clearTimeout(factAnimationTimer.current);
-    }
-
-    // 3. Check if we have fact GIFs to play
-    if (factImageSrcs && factImageSrcs.length > 0) {
-      // 4. Pick a random "fact" GIF
-      const randomFactImage =
-        factImageSrcs[Math.floor(Math.random() * factImageSrcs.length)];
-      
-      // 5. Set the new image
-      setCurrentImage(randomFactImage);
-
-      // 6. Set a timer to revert to the idle image after 4 seconds (4000ms)
-      // (Adjust this duration to match the length of your GIFs)
-      factAnimationTimer.current = setTimeout(() => {
-        setCurrentImage(idleImageSrc);
-        factAnimationTimer.current = null; // Clear the ref
-      }, 4000); 
-    }
+    setTimeout(() => setShowFact(false), 5000);
   };
 
-  // --- Drag Handlers (No changes here) ---
-  const onMouseDown = (e: MouseEvent<HTMLDivElement>) => {
+  // Mouse/Touch drag handlers
+  const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
     setIsDragging(true);
-    hasDragged.current = false;
-    const rect = mascotRef.current!.getBoundingClientRect();
-    dragOffset.current = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
-  };
-
-  const onMouseUp = () => {
-    setIsDragging(false);
-    if (!hasDragged.current) {
-      showNewFact(); // This now triggers the new GIF logic
-    }
-  };
-
-  const onMouseMove = (e: globalThis.MouseEvent) => {
-    if (!isDragging) return;
-    hasDragged.current = true;
-    setPosition({
-      x: e.clientX - dragOffset.current.x,
-      y: e.clientY - dragOffset.current.y,
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    setDragOffset({
+      x: clientX - position.x,
+      y: clientY - position.y,
     });
   };
-  
-  // Global listeners for mouse move/up
+
+  const handleMove = (e: MouseEvent | TouchEvent) => {
+    if (!isDragging) return;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    setPosition({
+      x: clientX - dragOffset.x,
+      y: clientY - dragOffset.y,
+    });
+  };
+
+  const handleEnd = () => {
+    setIsDragging(false);
+  };
+
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('mouseup', handleEnd);
+      document.addEventListener('touchmove', handleMove);
+      document.addEventListener('touchend', handleEnd);
+      return () => {
+        document.removeEventListener('mousemove', handleMove);
+        document.removeEventListener('mouseup', handleEnd);
+        document.removeEventListener('touchmove', handleMove);
+        document.removeEventListener('touchend', handleEnd);
+      };
     }
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-    };
-  }, [isDragging]);
+  }, [isDragging, dragOffset]);
 
-  // --- NEW: Effect to sync idle image if prop changes ---
-  useEffect(() => {
-    // If no animation is playing, ensure we are showing the idle image
-    if (!factAnimationTimer.current) {
-      setCurrentImage(idleImageSrc);
-    }
-  }, [idleImageSrc]);
-
-
-  // Determine animation class (No change here)
-  const animationClass =
-    animationType === 'jump'
-      ? 'jump-in'
-      : animationType === 'slide'
-      ? 'slide-in'
-      : '';
+  // Animation class
+  const animationClass = animationType === 'jump' ? 'animate-jumpIn' : 'animate-slideIn';
 
   return (
     <>
+      {/* Mascot */}
       <div
         ref={mascotRef}
-        className={`mascot-container ${animationClass}`}
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          cursor: isDragging ? 'grabbing' : 'grab',
+        className={`fixed w-32 h-32 cursor-grab active:cursor-grabbing transition-all duration-300 z-50 ${animationClass} ${isDragging ? 'opacity-80' : 'opacity-100'}`}
+        style={{ left: `${position.x}px`, top: `${position.y}px` }}
+        onMouseDown={handleStart}
+        onTouchStart={handleStart}
+        onClick={(e) => {
+          e.stopPropagation();
+          showRandomFact();
         }}
-        onMouseDown={onMouseDown}
       >
-        {/* Fact Bubble (No changes here) */}
-        {showFact && (
-          <div className="fact-bubble">
-            <button className="close-btn" onClick={() => setShowFact(false)}>
-              &times;
-            </button>
-            <p>{currentFact}</p>
-          </div>
-        )}
-
-        {/* --- CHANGED: Mascot Image source is now dynamic --- */}
         <Image
-          src={currentImage} // This now uses the state variable
+          src={idleImageSrc}
           alt={altText}
-          width={100}
-          height={100}
-          className="mascot-image"
-          unoptimized // NEW: Add this if you are using GIFs to prevent optimization issues
+          width={128}
+          height={128}
+          className="w-full h-full object-contain drop-shadow-lg"
+          draggable={false}
         />
       </div>
 
-      {/* STYLES (No changes here) */}
-      <style jsx>{`
-        /* --- Entrance Animations --- */
-        @keyframes jump-in { /* ... */ }
-        @keyframes slide-in { /* ... */ }
-        .jump-in { /* ... */ }
-        .slide-in { /* ... */ }
-
-        /* --- Original Styles --- */
-        .mascot-container {
-          position: fixed;
-          z-index: 1000;
-          user-select: none;
-          transition: transform 0.1s ease-out;
-          opacity: 0; 
-          animation-fill-mode: forwards;
-        }
-        .mascot-container:active { transform: scale(1.05); }
-        .mascot-image { pointer-events: none; }
-        .fact-bubble { /* ... */ }
-        .fact-bubble p { /* ... */ }
-        .fact-bubble::after { /* ... */ }
-        .close-btn { /* ... */ }
-        .close-btn:hover { /* ... */ }
-      `}</style>
+      {/* Fact Bubble */}
+      {showFact && currentFact && factImage && (
+        <div
+          className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 max-w-sm shadow-2xl z-50 animate-fadeIn"
+          style={{ pointerEvents: 'none' }}
+        >
+          <Image
+            src={factImage}
+            alt="Fact"
+            width={200}
+            height={200}
+            className="w-full h-auto rounded-lg mb-3"
+          />
+          <p className="text-center text-gray-800 font-medium">{currentFact}</p>
+        </div>
+      )}
     </>
   );
 }
