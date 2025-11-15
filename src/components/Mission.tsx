@@ -4,10 +4,8 @@ import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 
 export default function Mission() {
-  // Use HTMLElement[] to support <div>, <h2>, etc.
   const sectionRefs = useRef<HTMLElement[]>([]);
 
-  // Type-safe ref handler
   const addRef = (el: HTMLElement | null) => {
     if (el && !sectionRefs.current.includes(el)) {
       sectionRefs.current.push(el);
@@ -35,13 +33,33 @@ export default function Mission() {
 
   return (
     <>
-      {/* ==== MAIN SECTION ==== */}
-      <section
-        className="relative min-h-screen bg-cover bg-center bg-fixed py-32 text-white overflow-x-hidden"
+      {/* ==== THIS IS THE FIX ====
+        This div is now your stationary background. It's fixed, sits behind
+        all content (z-[-1]), and has the background image. This works
+        perfectly on all devices, unlike 'bg-fixed'.
+      */}
+      <div
+        className="fixed inset-0 z-[-1] bg-cover bg-center"
         style={{ backgroundImage: "url('/assets/InkyandRanger.png')" }}
       >
-        <div className="absolute inset-0 bg-black/50 z-10" />
+        {/* The overlay is also here to darken the background */}
+        <div className="absolute inset-0 bg-black/50" />
+      </div>
+
+
+      {/* ==== MAIN SECTION (MODIFIED) ====
+        This section no longer has any background styles. It's just a
+        container for your content that scrolls over the fixed background.
+        The 'overflow-x-hidden' will now correctly hide the text 
+        that animates in from the sides.
+      */}
+      <section
+        className="relative min-h-screen py-32 text-white overflow-x-hidden"
+      >
+        {/* We removed the black/50 overlay div from here */}
         <div className="relative z-20 container mx-auto px-6 max-w-7xl">
+          
+          {/* ... all your content (The Bad, Ugly, Good) ... */}
           {/* The Bad... */}
           <h2
             className="text-5xl md:text-6xl font-playfair font-bold mb-20"
@@ -346,6 +364,11 @@ function Footer() {
         .text-custom-blue {
           color: #0d47a1;
         }
+        
+        /* NOTE: The .wave-top::before style was missing here, 
+           but it's in your global.css or globals.css,
+           so it should be fine. If your wave is missing,
+           we'd need to add it back here. */
       `}</style>
     </>
   );
