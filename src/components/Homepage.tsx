@@ -133,48 +133,48 @@ function Features() {
             Why Choose <span className="text-custom-blue">B3TR</span> BEACH
           </h2>
          <div className="mb-2 p-16 flex justify-center">
-	<div className="bg-custom-blue p-8 rounded-xl shadow w-full max-w-3xl">
+	<div className="bg-transparent p-8 rounded-xl shadow w-full max-w-3xl">
               <a
                 href="/mission"
-                className="bg-amber-300 hover:bg-black text-green-500 text-4xl font-bold px-4 py-2 rounded-lg text-outline-black">
+                className="bg-amber-300 hover:bg-black text-green-500 text-6xl font-bold px-4 py-2 rounded-lg text-outline-black">
                 What We Do B3TR
               </a>
-              <p className="mt-4 text-white text-2xl">
+              <p className="mt-16 text-custom-blue text-4xl mx-4">
                 Here's a glimpse of what we do first hand! Putting our actions where our mouth is! 
               </p>
             </div>
 </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-custom-blue p-8 rounded-lg shadow">
+            <div className="bg-transparent p-8 rounded-lg shadow">
               <a
                 href="/events"
                 className="bg-amber-300 hover:bg-black text-green-500 text-4xl font-bold px-4 py-2 rounded-lg text-outline-black"
               >
                 Clean Up Events
               </a>
-              <p className="mt-14 text-white text-2xl justify-center">
+              <p className="mt-14 text-custom-blue text-4xl justify-center">
                 Engage with curated community events sponsored by us and/or our partners and directly helping to educate and reward for real impact
               </p>
             </div>
-            <div className="bg-custom-blue p-8 rounded-lg shadow">
+            <div className="transparent p-8 rounded-lg shadow">
               <a
                 href="/store"
                 className="bg-amber-300 hover:bg-black text-green-500 text-4xl font-bold px-4 py-2 rounded-lg text-outline-black"
               >
                 B3TR Rewards
               </a>
-              <p className="mt-2 text-white text-2xl">
+              <p className="mt-8 text-custom-blue text-4xl">
                 Earn XP Points and rewards at events that are redeemable for <span className="text-custom-blue text-outline-black">B3TR</span>  <span className="text-amber-400">𝐁EACH</span>  merchandise. 75% of all net proceeds go directly towards clean up events(including tools and equipment) and initiatives to continue our planetary duty to the environment!
               </p>
             </div>
-            <div className="bg-custom-blue p-8 rounded-lg shadow">
+            <div className="transparent p-8 rounded-lg shadow">
               <a
                 href="#"
                 className="bg-amber-300 hover:bg-black text-green-500 text-4xl font-bold px-4 py-2 rounded-lg text-outline-black"
               >
                 Adopt-A-Beach/Park
               </a>
-              <p className="mt-10 text-white text-2xl">
+              <p className="mt-10 text-custom-blue text-4xl">
                 Want to make an even <span className="text-amber-400">B3TR</span> lasting impact? Become an Adopter! Own a piece of beach, river, lake, or park
                 and be apart of the solution!
               </p>
