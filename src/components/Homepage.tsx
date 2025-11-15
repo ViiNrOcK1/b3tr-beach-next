@@ -211,18 +211,11 @@ function Sponsors() {
     >
       <div className="container mx-auto px-4">
         <div className="fade-content">
-          <h2 className="text-center text-6xl text-amber-400 font-bold mb-8 text-outline-black">
+          <h2 className="text-center text-6xl text-custom-blue font-bold mb-8 text-outline-black">
             WE....</h2>
 <h1 className="text-center text-3xl text-black font-bold mb-8 text-outline-amber">EDUCATE, DEMONSTRATE, COLLABORATE, PARTICPATE AND IF YOU SUPPORT OUR CAUSE FEEL FREE TO DONATE, WHICH ALLOWS US TO GENERATE IN ORDER TO REGENERATE 
 </h1>
           
-          <p className="text-center mb-16 text-amber-400 text-outline-black text-2xl">
-            We partner with local and eco-conscious brands to bring you the best events. Interested in sponsoring?{' '}
-            <a href="mailto:b3tr.beach@gmail.com" className="text-custom-black">
-              Contact us
-            </a>
-            .
-          </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
            <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black text-center">
                 EDUCATE
