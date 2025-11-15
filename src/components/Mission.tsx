@@ -57,7 +57,7 @@ export default function Mission() {
         className="relative min-h-screen py-32 text-white overflow-x-hidden"
       >
         {/* We removed the black/50 overlay div from here */}
-        <div className="relative z-20 container mx-auto px-6 max-w-7xl">
+        <div className="relative z-20 container mx-auto px-6 max-w-7xl overflow-x-hidden">
           
           {/* ... all your content (The Bad, Ugly, Good) ... */}
           {/* The Bad... */}
