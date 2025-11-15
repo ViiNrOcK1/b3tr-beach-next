@@ -41,7 +41,7 @@ export default function Mission() {
       <section className="relative min-h-screen py-32 text-white overflow-x-hidden">
         <div className="relative z-20 container mx-auto px-6 max-w-7xl">
 
-          {/* === HEADINGS === */}
+          {/* The Bad... */}
           <h2 ref={addRef} className="text-5xl md:text-6xl font-playfair font-bold mb-20 text-center md:text-left opacity-0 -translate-y-12 transition-all duration-1000">
             {"The Bad...".split('').map((char, i) => (
               <span key={i} className="letter" style={{ transitionDelay: `${("The Bad...".length - 1 - i) * 50}ms` }}>
@@ -50,16 +50,10 @@ export default function Mission() {
             ))}
           </h2>
 
-          {/* === ROWS – MOBILE: stacked + fade-up | DESKTOP: side-by-side + slide-in === */}
           {/* Row 1 */}
           <div
             ref={addRef}
-            className="
-              flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-20
-              opacity-0
-              md:translate-x-[-60px] translate-y-12
-              transition-all duration-1000
-            "
+            className={`flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-20 opacity-0 md:translate-x-[-60px] translate-y-12 transition-all duration-1000`}
           >
             <div className="w-full md:w-1/2">
               <Image src="/assets/PlasticTurtle.jpg" alt="Turtle" width={600} height={420} className="w-full h-auto rounded-2xl shadow-2xl" />
@@ -75,12 +69,7 @@ export default function Mission() {
           {/* Row 2 */}
           <div
             ref={addRef}
-            className="
-              flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 mb-20
-              opacity-0
-              md:translate-x-[60px] translate-y-12
-              transition-all duration-1000
-            "
+            className={`flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 mb-20 opacity-0 md:translate-x-[60px] translate-y-12 transition-all duration-1000`}
           >
             <div className="w-full md:w-1/2">
               <Image src="/assets/riverlitter.jpg" alt="River" width={600} height={420} className="w-full h-auto rounded-2xl shadow-2xl" />
@@ -96,12 +85,7 @@ export default function Mission() {
           {/* Row 3 */}
           <div
             ref={addRef}
-            className="
-              flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-20
-              opacity-0
-              md:translate-x-[-60px] translate-y-12
-              transition-all duration-1000
-            "
+            className={`flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-20 opacity-0 md:translate-x-[-60px] translate-y-12 transition-all duration-1000`}
           >
             <div className="w-full md:w-1/2">
               <Image src="/assets/ecocollapse.jpg" alt="Wildlife" width={600} height={420} className="w-full h-auto rounded-2xl shadow-2xl" />
@@ -114,7 +98,7 @@ export default function Mission() {
             </div>
           </div>
 
-          {/* === THE UGLY === */}
+          {/* The Ugly... */}
           <h2 ref={addRef} className="text-5xl md:text-6xl font-playfair font-bold mb-20 text-center opacity-0 -translate-y-12 transition-all duration-1000">
             {"The Ugly...".split('').map((char, i) => (
               <span key={i} className="letter" style={{ transitionDelay: `${i * 50}ms` }}>
@@ -126,12 +110,7 @@ export default function Mission() {
           {/* Row 4 */}
           <div
             ref={addRef}
-            className="
-              flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 mb-20
-              opacity-0
-              md:translate-x-[60px] translate-y-12
-              transition-all duration-1000
-            "
+            className={`flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 mb-20 opacity-0 md:translate-x-[60px] translate-y-12 transition-all duration-1000`}
           >
             <div className="w-full md:w-1/2">
               <Image src="/assets/garbagepatch.webp" alt="Garbage Patch" width={600} height={420} className="w-full h-auto rounded-2xl shadow-2xl" />
@@ -147,12 +126,7 @@ export default function Mission() {
           {/* Row 5 */}
           <div
             ref={addRef}
-            className="
-              flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-20
-              opacity-0
-              md:translate-x-[-60px] translate-y-12
-              transition-all duration-1000
-            "
+            className={`flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-20 opacity-0 md:translate-x-[-60px] translate-y-12 transition-all duration-1000`}
           >
             <div className="w-full md:w-1/2">
               <Image src="/assets/pollutedkids.jpg" alt="Children" width={600} height={420} className="w-full h-auto rounded-2xl shadow-2xl" />
@@ -165,7 +139,7 @@ export default function Mission() {
             </div>
           </div>
 
-          {/* === THE GOOD === */}
+          {/* The Good... */}
           <h2 ref={addRef} className="text-5xl md:text-6xl font-playfair font-bold mb-20 text-center md:text-right opacity-0 -translate-y-12 transition-all duration-1000">
             {"The Good...".split('').map((char, i) => (
               <span key={i} className="letter" style={{ transitionDelay: `${("The Good...".length - 1 - i) * 50}ms` }}>
@@ -177,12 +151,7 @@ export default function Mission() {
           {/* Row 6 */}
           <div
             ref={addRef}
-            className="
-              flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 mb-20
-              opacity-0
-              md:translate-x-[60px] translate-y-12
-              transition-all duration-1000
-            "
+            className={`flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 mb-20 opacity-0 md:translate-x-[60px] translate-y-12 transition-all duration-1000`}
           >
             <div className="w-full md:w-1/2">
               <Image src="/assets/shazam2b3tr.webp" alt="Cleanup" width={600} height={420} className="w-full h-auto rounded-2xl shadow-2xl" />
@@ -203,12 +172,7 @@ export default function Mission() {
           {/* Row 7 */}
           <div
             ref={addRef}
-            className="
-              flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-20
-              opacity-0
-              md:translate-x-[-60px] translate-y-12
-              transition-all duration-1000
-            "
+            className={`flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-20 opacity-0 md:translate-x-[-60px] translate-y-12 transition-all duration-1000`}
           >
             <div className="w-full md:w-1/2">
               <Image src="/assets/sunsetmascots.webp" alt="Mascots" width={600} height={420} className="w-full h-auto rounded-2xl shadow-2xl" />
@@ -228,12 +192,7 @@ export default function Mission() {
           {/* Row 8 */}
           <div
             ref={addRef}
-            className="
-              flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 mb-20
-              opacity-0
-              md:translate-x-[60px] translate-y-12
-              transition-all duration-1000
-            "
+            className={`flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 mb-20 opacity-0 md:translate-x-[60px] translate-y-12 transition-all duration-1000`}
           >
             <div className="w-full md:w-1/2">
               <Image src="/assets/trashcollected.webp" alt="Trash" width={600} height={420} className="w-full h-auto rounded-2xl shadow-2xl" />
