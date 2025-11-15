@@ -211,12 +211,12 @@ function Sponsors() {
     >
       <div className="container mx-auto px-4">
         <div className="fade-content">
-          <h2 className="text-center text-6xl text-custom-blue font-bold mb-8 text-outline-black">
+          <h2 className="text-center text-6xl text-custom-blue font-bold text-outline-black p-4">
             WE....</h2>
 <h1 className="text-center text-3xl text-black font-bold mb-8 text-outline-amber">EDUCATE, DEMONSTRATE, COLLABORATE, PARTICPATE AND IF YOU SUPPORT OUR CAUSE FEEL FREE TO DONATE, WHICH ALLOWS US TO GENERATE IN ORDER TO REGENERATE 
 </h1>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-16">
            <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-8 py-4 rounded-lg text-outline-black text-center">
                 EDUCATE
               </a>
@@ -230,12 +230,12 @@ function Sponsors() {
                 PARTICIPATE
               </a>
 		</div>
-	    <div className="mb-2 p-16 flex justify-center">
+	    <div className="mb-2 p-10 flex justify-center">
             <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-8 py-4 rounded-lg text-outline-black text-center">
                 DONATE
               </a>
           </div>
-	<p className="p-8"></p>
+	<p className="p-2"></p>
         </div>
         {showError && (
           <div className="error-message visible text-white bg-red-600 p-4 rounded absolute top-4 left-4 z-10">
