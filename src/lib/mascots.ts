@@ -69,20 +69,24 @@ export const rangerFacts = [
   'B3TR Beach cleanups turn your effort into real-world results, removing thousands of pounds of trash from our communities.',
 ] satisfies string[];
 
-export const inkyIdleGif = "/assets/InkyOcto.gif";
+export const inkyIdleGif = "/assets/InkyStill.gif";
 export const inkyFactGifs = [
-  '/assets/InkyGif1.gif',
-  '/assets/InkyGif2.gif',
-  '/assets/InkyGif3.gif',
-  '/assets/InkyGif4.gif',
+  '/assets/Inky1.gif',
+  '/assets/Inky2.gif',
+  '/assets/Inky3.gif',
+  '/assets/Inky4.gif',
+  '/assets/Inky5.gif',
+  '/assets/Inky6.gif',
+  '/assets/Inky7.gif',
 ] satisfies string[];
 
-export const rangerIdleGif = "/assets/RangerBear.gif";
+export const rangerIdleGif = "/assets/RangerFull.gif";
 export const rangerFactGifs = [
-  '/assets/RangerGif6.gif',
-  '/assets/RangerGif1.gif',
-  '/assets/RangerGif2.gif',
-  '/assets/RangerGif3.gif',
-  '/assets/RangerGif4.gif',
-  '/assets/RangerGif5.gif',
+  '/assets/Ranger6.gif',
+  '/assets/Ranger1.gif',
+  '/assets/Ranger2.gif',
+  '/assets/Ranger3.gif',
+  '/assets/Ranger4.gif',
+  '/assets/Ranger5.gif',
+  '/assets/Ranger7.gif',
 ] satisfies string[];

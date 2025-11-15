@@ -187,7 +187,7 @@ export default function Mission() {
           >
             <div className="flex-1">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                <Image src="/images/good-fund.jpg" alt="Community cleanup funded by B3TR" width={600} height={420} className="w-full h-auto object-cover" />
+                <Image src="/assets/shazam2b3tr.webp" alt="Community cleanup funded by B3TR" width={600} height={420} className="w-full h-auto object-cover" />
               </div>
             </div>
             <div className="flex-1 space-y-4">
@@ -210,7 +210,7 @@ export default function Mission() {
           >
             <div className="flex-1">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                <Image src="/images/InkyRanger.jpg" alt="Inky and Ranger Bear mascots" width={600} height={420} className="w-full h-auto object-cover" />
+                <Image src="/assets/sunsetmascots.webp" alt="Inky and Ranger Bear mascots" width={600} height={420} className="w-full h-auto object-cover" />
               </div>
             </div>
             <div className="flex-1 space-y-4">
@@ -232,10 +232,7 @@ export default function Mission() {
           >
             <div className="flex-1">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                <video autoPlay muted loop playsInline className="w-full h-auto object-cover">
-                  <source src="/videos/good-cleanup.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+                <Image src="/assets/trashcollected.webp" alt="Inky and Ranger Bear mascots" width={600} height={420} className="w-full h-auto object-cover" />
               </div>
             </div>
             <div className="flex-1 space-y-4">
