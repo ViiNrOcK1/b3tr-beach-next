@@ -199,13 +199,13 @@ export default function Mission() {
             </div>
             <div className="w-full md:w-1/2 space-y-4 text-center md:text-left">
               <h3 className="text-2xl font-bold text-teal-300">Sustainable Funding for Lasting Impact</h3>
-              <ul className="list-none space-y-3 text-sm md:text-base">
+              <ul className="list-none space-y-3 text-lg md:text-base">
                 <li className="flex items-start"><span className="text-teal-300 mr-2">•</span> <strong>Public Donations:</strong> Crowdfunding & "Sponsor-a-Cleanup"</li>
                 <li className="flex items-start"><span className="text-teal-300 mr-2">•</span> <strong>Corporate Partnerships:</strong> ESG funding</li>
                 <li className="flex items-start"><span className="text-teal-300 mr-2">•</span> <strong>Grants:</strong> Major environmental foundations</li>
                 <li className="flex items-start"><span className="text-teal-300 mr-2">•</span> <strong>Eco-Merch:</strong> 100% profits fund cleanups</li>
               </ul>
-              <p className="mt-4 text-base md:text-lg px-2 md:px-0">
+              <p className="mt-4 text-base md:text-2xl px-2 md:px-0">
                 <strong>Every cleanup removes 50–200 lbs of trash.</strong> Volunteers have restored 50+ miles of coastline. Schools see <strong>40% recycling increases</strong> post-program.
               </p>
             </div>
