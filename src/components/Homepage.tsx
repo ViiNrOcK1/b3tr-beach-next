@@ -97,18 +97,18 @@ function Hero() {
     >
       <div className="container mx-auto px-4 text-center">
         <div className="fade-content">
-          <h2 className="text-6xl text-amber-400 font-bold mb-4 text-outline-black">
+          <h2 className="text-8xl text-amber-400 font-bold mb-4 text-outline-black">
             Our Mission to Become <span className="text-custom-blue">B3TR</span>
           </h2>
-          <p className="text-2xl mb-6">
-            Welcome to <span className="text-custom-blue">B3TR </span>
+          <p className="text-4xl mb-6 text-outline-amber">
+            Welcome to <span className="text-custom-blue text-outline-black">B3TR </span>
             <span className="text-amber-400">Beach</span>! 🏝️
             Our Mission is to combat beach, river, stream and park pollution and protect marine and land ecosystems through a decentralized “Clean to Earn” initiative that rewards real-world impact for the
-            <span className="text-custom-blue text-outline-black"> B3TR</span>.  We promote and feature organizations making a difference — locally and globally. We facilitate, collaborate and act as a central environmental fund, raising capital and awareness to support community-led
-outreach programs dedicated to cleaning beaches, parks, rivers, and any natural habitats impacted by waste. Educating through clean up events to help spread awareness, and to showcase our Proof of Work.  We always have been about action as we feel everyone can do just a small part to make a big difference.   Our vision is a world with pristine natural environments where local communities are empowered and funded to protect their ecosystems, ensuring wildlife can  thrive in a clean and healthy world. Our mascot characters (Ranger Bear & Inky the Octopus) help make education fun and relatable for kids and appeal to anyone in between.  In order to do B3TR we must KNOW B3TR.  Educate, Demonstrate, Collaborate is the mindset we carry for success. With your help we can truly make our planet B3TR.
+            <span className="text-custom-blue text-outline-black"> B3TR</span>.  We promote and feature organizations making a difference — locally and globally. </p><p className="text-4xl mb-6 text-outline-amber">We facilitate, collaborate and act as a central environmental fund, raising capital and awareness to support community-led
+outreach programs dedicated to cleaning beaches, parks, rivers, and any natural habitats impacted by waste. Educating through clean up events to help spread awareness, and to showcase our Proof of Work. </p><p className="text-4xl mb-6 text-outline-amber"> We always have been about action as we feel everyone can do just a small part to make a big difference.   Our vision is a world with pristine natural environments where local communities are empowered and funded to protect their ecosystems, ensuring wildlife can  thrive in a clean and healthy world.</p><p className="text-4xl mb-4 text-outline-amber"> Our mascot characters (Ranger Bear & Inky the Octopus) help make education fun and relatable for kids and appeal to anyone in between.  In order to do B3TR we must KNOW B3TR.  Educate, Demonstrate, Collaborate is the mindset we carry for success. With your help we can truly make our planet B3TR.</p>
             <br />
-            Thank You for Joining Us! 🤟🏽.
-          </p>
+            <p className="text-4xl text-outline-amber">Thank You for Joining Us! 🤟🏽.
+	    </p>
         </div>
       </div>
     </section>
@@ -127,54 +127,54 @@ function Features() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      <div className="container mx-auto px-4 text-center">
+      <div className="container mx-auto px-4 text-center text-outline-black">
         <div className="fade-content">
-          <h2 className="text-6xl text-amber-400 font-bold mb-12 text-outline-black">
+          <h2 className="text-8xl text-amber-400 font-bold mb-12 text-outline-black">
             Why Choose <span className="text-custom-blue">B3TR</span> BEACH
           </h2>
          <div className="mb-2 p-16 flex justify-center">
-	<div className="bg-custom-blue p-4 rounded-xl shadow w-full max-w-2xl">
+	<div className="bg-custom-blue p-8 rounded-xl shadow w-full max-w-3xl">
               <a
                 href="/mission"
-                className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black">
+                className="bg-amber-300 hover:bg-black text-green-500 text-4xl font-bold px-4 py-2 rounded-lg text-outline-black">
                 What We Do B3TR
               </a>
-              <p className="mt-2 text-white text-xl">
+              <p className="mt-4 text-white text-2xl">
                 Here's a glimpse of what we do first hand! Putting our actions where our mouth is! 
               </p>
             </div>
 </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-custom-blue p-4 rounded-lg shadow">
+            <div className="bg-custom-blue p-8 rounded-lg shadow">
               <a
                 href="/events"
-                className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
+                className="bg-amber-300 hover:bg-black text-green-500 text-4xl font-bold px-4 py-2 rounded-lg text-outline-black"
               >
                 Clean Up Events
               </a>
-              <p className="mt-2 text-white text-xl">
+              <p className="mt-14 text-white text-2xl justify-center">
                 Engage with curated community events sponsored by us and/or our partners and directly helping to educate and reward for real impact
               </p>
             </div>
-            <div className="bg-custom-blue p-4 rounded-lg shadow">
+            <div className="bg-custom-blue p-8 rounded-lg shadow">
               <a
                 href="/store"
-                className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
+                className="bg-amber-300 hover:bg-black text-green-500 text-4xl font-bold px-4 py-2 rounded-lg text-outline-black"
               >
                 B3TR Rewards
               </a>
-              <p className="mt-2 text-white text-xl">
+              <p className="mt-2 text-white text-2xl">
                 Earn XP Points and rewards at events that are redeemable for <span className="text-custom-blue text-outline-black">B3TR</span>  <span className="text-amber-400">𝐁EACH</span>  merchandise. 75% of all net proceeds go directly towards clean up events(including tools and equipment) and initiatives to continue our planetary duty to the environment!
               </p>
             </div>
-            <div className="bg-custom-blue p-4 rounded-lg shadow">
+            <div className="bg-custom-blue p-8 rounded-lg shadow">
               <a
                 href="#"
-                className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black"
+                className="bg-amber-300 hover:bg-black text-green-500 text-4xl font-bold px-4 py-2 rounded-lg text-outline-black"
               >
                 Adopt-A-Beach/Park
               </a>
-              <p className="mt-2 text-white text-xl">
+              <p className="mt-10 text-white text-2xl">
                 Want to make an even <span className="text-amber-400">B3TR</span> lasting impact? Become an Adopter! Own a piece of beach, river, lake, or park
                 and be apart of the solution!
               </p>
@@ -217,23 +217,23 @@ function Sponsors() {
 </h1>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-4">
-           <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black text-center">
+           <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-8 py-4 rounded-lg text-outline-black text-center">
                 EDUCATE
               </a>
-	   <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black text-center">
+	   <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-8 py-4 rounded-lg text-outline-black text-center">
                 DEMONSTRATE
               </a>
-            <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black text-center">
+            <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-8 py-4 rounded-lg text-outline-black text-center">
                 COLLABORATE
               </a>
-            <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black text-center">
+            <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-8 py-4 rounded-lg text-outline-black text-center">
                 PARTICIPATE
               </a>
+		</div>
 	    <div className="mb-2 p-16 flex justify-center">
-            <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black text-center">
+            <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-8 py-4 rounded-lg text-outline-black text-center">
                 DONATE
               </a>
-	     </div>
           </div>
 	<p className="p-8"></p>
         </div>
