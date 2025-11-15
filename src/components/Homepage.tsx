@@ -216,7 +216,7 @@ function Sponsors() {
 <h1 className="text-center text-3xl text-black font-bold mb-8 text-outline-amber">EDUCATE, DEMONSTRATE, COLLABORATE, PARTICPATE AND IF YOU SUPPORT OUR CAUSE FEEL FREE TO DONATE, WHICH ALLOWS US TO GENERATE IN ORDER TO REGENERATE 
 </h1>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-4">
            <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black text-center">
                 EDUCATE
               </a>
@@ -229,9 +229,11 @@ function Sponsors() {
             <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black text-center">
                 PARTICIPATE
               </a>
+	    <div className="mb-2 p-16 flex justify-center">
             <a href="#" className="bg-amber-300 hover:bg-black text-green-500 text-2xl font-bold px-2 py-1 rounded-lg text-outline-black text-center">
                 DONATE
               </a>
+	     </div>
           </div>
 	<p className="p-8"></p>
         </div>
