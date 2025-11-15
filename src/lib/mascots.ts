@@ -80,7 +80,7 @@ export const inkyFactGifs = [
   '/assets/Inky7.gif',
 ] satisfies string[];
 
-export const rangerIdleGif = "/assets/RangerFull.gif";
+export const rangerIdleGif = "/assets/Ranger3D.gif";
 export const rangerFactGifs = [
   '/assets/Ranger6.gif',
   '/assets/Ranger1.gif',
